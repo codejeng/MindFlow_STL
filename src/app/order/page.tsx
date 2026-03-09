@@ -15,9 +15,10 @@ import ChildCareIcon from "@mui/icons-material/ChildCare";
 
 export default function OrderPage() {
   const router = useRouter();
-  const { players, turnOrder, setTurnOrder, randomizeTurnOrder, setGamePhase } = useGame();
+  const { players, turnOrder, setTurnOrder, randomizeTurnOrder, setGamePhase, setGameStartTime } = useGame();
 
   const handleStart = () => {
+    setGameStartTime(Date.now());
     setGamePhase("playing");
     router.push("/play");
   };

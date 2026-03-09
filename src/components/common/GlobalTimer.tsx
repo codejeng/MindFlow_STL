@@ -7,7 +7,13 @@ import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 
 export default function GlobalTimer({ onTimeUp }: { onTimeUp: () => void }) {
   const { gameStartTime, timeLimit } = useGame();
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  
+  // Initialize synchronously so it renders on mount
+  const [timeLeft, setTimeLeft] = useState<number | null>(() => {
+    if (!gameStartTime) return null;
+    const elapsed = Date.now() - gameStartTime;
+    return Math.max(0, timeLimit * 60 * 1000 - elapsed);
+  });
 
   useEffect(() => {
     if (!gameStartTime) return;
@@ -24,14 +30,12 @@ export default function GlobalTimer({ onTimeUp }: { onTimeUp: () => void }) {
       }
     }, 1000);
 
-    // Immediate calculation
-    const elapsed = Date.now() - gameStartTime;
-    setTimeLeft(Math.max(0, timeLimit * 60 * 1000 - elapsed));
-
     return () => clearInterval(interval);
   }, [gameStartTime, timeLimit, onTimeUp]);
 
-  if (timeLeft === null) return null;
+  if (timeLeft === null) return (
+    <Box sx={{ width: 60, height: 32, backgroundColor: "#E0F2F1", borderRadius: 3, opacity: 0.5 }} />
+  );
 
   const minutes = Math.floor(timeLeft / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
