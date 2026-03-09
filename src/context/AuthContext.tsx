@@ -27,13 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // Get initial session
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setUser(user);
+        supabase.auth.getUser().then((response: { data: { user: User | null } }) => {
+            setUser(response.data.user);
             setLoading(false);
         });
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
             setUser(session?.user ?? null);
             setLoading(false);
         });
