@@ -1,21 +1,25 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fredoka, Mitr } from "next/font/google";
 import AppProviders from "@/providers";
 import "./globals.css";
 import type { Metadata } from "next";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const mitr = Mitr({
+  variable: "--font-mitr",
+  subsets: ["thai", "latin"],
+  weight: ["200", "300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MindFlow",
-  description: "MindFlow – Your intelligent productivity companion",
+  title: "MindFlow – Board Game",
+  description: "The Path To Understanding — เส้นทางแห่งความเข้าใจ",
 };
 
 export default function RootLayout({
@@ -24,10 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="th">
+      <body className={`${fredoka.variable} ${mitr.variable}`}>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

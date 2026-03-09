@@ -1,0 +1,220 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Box, Typography, Button, Container, TextField,
+  ToggleButtonGroup, ToggleButton, Alert,
+} from "@mui/material";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useGame, CHARACTERS } from "@/context/GameContext";
+import type { PlayerRole } from "@/context/GameContext";
+import PageTransition from "@/components/common/PageTransition";
+import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import PersonIcon from "@mui/icons-material/Person";
+import ChildCareIcon from "@mui/icons-material/ChildCare";
+import CloseIcon from "@mui/icons-material/Close";
+
+export default function SetupPage() {
+  const router = useRouter();
+  const { players, addPlayer, removePlayer, setTurnOrder, setGamePhase } = useGame();
+  const [name, setName] = useState("");
+  const [role, setRole] = useState<PlayerRole>("parent");
+  const [selectedChar, setSelectedChar] = useState(CHARACTERS[0].id);
+  const [error, setError] = useState("");
+
+  // Already-used character IDs
+  const usedChars = players.map((p) => p.characterId);
+
+  const handleAdd = () => {
+    const trimmed = name.trim();
+    if (!trimmed) { setError("กรุณาใส่ชื่อผู้เล่น"); return; }
+    if (players.length >= 5) { setError("ผู้เล่นเต็มแล้ว (สูงสุด 5 คน)"); return; }
+    addPlayer(trimmed, role, selectedChar);
+    setName("");
+    setError("");
+    // Auto-advance to next unused character
+    const nextChar = CHARACTERS.find((c) => !usedChars.includes(c.id) && c.id !== selectedChar);
+    if (nextChar) setSelectedChar(nextChar.id);
+  };
+
+  const handleNext = () => {
+    if (players.length < 2) { setError("ต้องมีผู้เล่นอย่างน้อย 2 คน"); return; }
+    setTurnOrder(players.map((p) => p.id));
+    setGamePhase("ordering");
+    router.push("/order");
+  };
+
+  return (
+    <PageTransition>
+      <Container maxWidth="sm" sx={{ py: 4, minHeight: "100vh" }}>
+        {/* Header */}
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Typography variant="h4" fontWeight={600} sx={{ color: "#1B7B7E", mb: 1 }}>
+            ตั้งค่าผู้เล่น
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            เพิ่มผู้เล่น 2–5 คน พร้อมเลือกตัวละครและบทบาท
+          </Typography>
+        </Box>
+
+        {/* Add player card */}
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          sx={{ backgroundColor: "white", borderRadius: 4, p: 3, mb: 3, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
+        >
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+            เพิ่มผู้เล่น ({players.length}/5)
+          </Typography>
+
+          {/* Character picker */}
+          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>เลือกตัวละคร</Typography>
+          <Box sx={{ display: "flex", gap: 1, mb: 2, justifyContent: "center" }}>
+            {CHARACTERS.map((char) => {
+              const isUsed = usedChars.includes(char.id);
+              const isSelected = selectedChar === char.id;
+              return (
+                <Box
+                  key={char.id}
+                  component={motion.div}
+                  whileHover={isUsed ? {} : { scale: 1.08 }}
+                  whileTap={isUsed ? {} : { scale: 0.95 }}
+                  onClick={() => !isUsed && setSelectedChar(char.id)}
+                  sx={{
+                    position: "relative",
+                    width: 68,
+                    height: 92,
+                    borderRadius: 3,
+                    overflow: "visible",
+                    cursor: isUsed ? "not-allowed" : "pointer",
+                    border: `3px solid ${isSelected ? char.baseColor : "transparent"}`,
+                    opacity: isUsed ? 0.35 : 1,
+                    backgroundColor: isSelected ? char.baseColor + "18" : "transparent",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <Image src={char.image} alt={char.name} width={62} height={80} style={{ objectFit: "contain" }} />
+                  <Typography variant="caption" fontWeight={600} sx={{ color: char.baseColor, mt: 0.25, fontSize: "0.65rem" }}>
+                    {char.name}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          {/* Name */}
+          <TextField
+            fullWidth
+            placeholder="ชื่อผู้เล่น"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+            sx={{ mb: 2 }}
+            inputProps={{ maxLength: 20 }}
+          />
+
+          {/* Role toggle */}
+          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>บทบาท</Typography>
+          <ToggleButtonGroup
+            value={role} exclusive
+            onChange={(_, val) => val && setRole(val)}
+            fullWidth sx={{ mb: 2 }}
+          >
+            <ToggleButton value="parent" sx={{ borderRadius: "12px !important", mr: 1, textTransform: "none", fontWeight: 500, "&.Mui-selected": { backgroundColor: "#E8F5E9", color: "#2E7D32", borderColor: "#4CAF50" } }}>
+              <PersonIcon sx={{ mr: 0.5 }} /> ผู้ปกครอง
+            </ToggleButton>
+            <ToggleButton value="child" sx={{ borderRadius: "12px !important", textTransform: "none", fontWeight: 500, "&.Mui-selected": { backgroundColor: "#FFF3E0", color: "#E65100", borderColor: "#FF9800" } }}>
+              <ChildCareIcon sx={{ mr: 0.5 }} /> ลูก
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <Button
+            variant="contained" color="secondary" fullWidth
+            onClick={handleAdd} startIcon={<PersonAddAltRoundedIcon />}
+            disabled={players.length >= 5} sx={{ py: 1.5 }}
+          >
+            เพิ่มผู้เล่น
+          </Button>
+        </Box>
+
+        {/* Error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+              <Alert severity="warning" sx={{ mb: 2, borderRadius: 3 }} onClose={() => setError("")}>{error}</Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Player list */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 4 }}>
+          <AnimatePresence mode="popLayout">
+            {players.map((player, i) => {
+              const char = CHARACTERS.find((c) => c.id === player.characterId);
+              return (
+                <Box
+                  key={player.id}
+                  component={motion.div}
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  sx={{
+                    display: "flex", alignItems: "center", gap: 2, p: 2,
+                    borderRadius: 3, backgroundColor: "white",
+                    border: `2px solid ${char?.baseColor ?? "#ddd"}22`,
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  {/* Character image */}
+                  <Box sx={{ width: 52, height: 64, flexShrink: 0, position: "relative" }}>
+                    {char && <Image src={char.image} alt={char.name} fill style={{ objectFit: "contain" }} />}
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography fontWeight={600} sx={{ color: char?.baseColor }}>{player.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ fontWeight: 700, color: "#CCC", mr: 0.5 }}>#{i + 1}</Typography>
+                  <Box
+                    component={motion.div} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    onClick={() => removePlayer(player.id)}
+                    sx={{ cursor: "pointer", color: "#CCC", "&:hover": { color: "#F44336" }, p: 0.5 }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </Box>
+                </Box>
+              );
+            })}
+          </AnimatePresence>
+
+          {players.length === 0 && (
+            <Box component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              sx={{ textAlign: "center", py: 6, color: "text.secondary" }}>
+              <Typography variant="h3" sx={{ mb: 1 }}>👥</Typography>
+              <Typography>ยังไม่มีผู้เล่น</Typography>
+            </Box>
+          )}
+        </Box>
+
+        {players.length >= 2 && (
+          <Box component={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            sx={{ position: "sticky", bottom: 16, zIndex: 10 }}>
+            <Button variant="contained" color="primary" fullWidth size="large"
+              onClick={handleNext} endIcon={<ArrowForwardRoundedIcon />} sx={{ py: 2, fontSize: "1.1rem" }}>
+              ถัดไป – เลือกลำดับ
+            </Button>
+          </Box>
+        )}
+      </Container>
+    </PageTransition>
+  );
+}
