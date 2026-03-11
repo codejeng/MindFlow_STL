@@ -15,12 +15,10 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 // ─── Trait metadata ────────────────────────────────────────────────────────────
 
 const TRAIT_META: Record<keyof TraitPoints, { label: string; icon: string; color: string; description: string }> = {
-  communication: { label: "การสื่อสาร", icon: "💬", color: "#1B7B7E", description: "พูดคุยและรับฟังกัน" },
-  empathy: { label: "ความเข้าอกเข้าใจ", icon: "❤️", color: "#E05A7A", description: "รับรู้และเข้าใจความรู้สึก" },
-  trust: { label: "ความไว้วางใจ", icon: "🤝", color: "#5BB8A8", description: "เชื่อมั่นและซื่อสัตย์ต่อกัน" },
-  quality_time: { label: "เวลาคุณภาพ", icon: "⏰", color: "#E8A030", description: "อยู่ด้วยกันอย่างมีความหมาย" },
-  boundaries: { label: "การเคารพพื้นที่", icon: "🌿", color: "#7A9E7A", description: "เคารพความเป็นส่วนตัวกัน" },
-  growth: { label: "การเติบโตร่วมกัน", icon: "🌱", color: "#7B68EE", description: "เรียนรู้และพัฒนาไปด้วยกัน" },
+  SE: { label: "ความเชื่อมั่นในตนเอง", icon: "💪", color: "#7B68EE", description: "เชื่อว่าตัวเองทำได้ มั่นใจในศักยภาพ" },
+  COM: { label: "การสื่อสาร", icon: "💬", color: "#1B7B7E", description: "พูดคุย รับฟัง และแสดงออกอย่างเหมาะสม" },
+  RES: { label: "ความยืดหยุ่น", icon: "🌱", color: "#E8A838", description: "ปรับตัว ฟื้นตัว และไม่ท้อต่ออุปสรรค" },
+  ER: { label: "การจัดการอารมณ์", icon: "🧘", color: "#D4607A", description: "รู้จักอารมณ์ตนเองและควบคุมได้" },
 };
 
 // ─── Relationship type based on dominant traits ─────────────────────────────
@@ -40,35 +38,32 @@ function getRelationshipType(traits: TraitPoints): RelationshipType {
   const total = entries.reduce((s, e) => s + e[1], 0);
 
   if (total === 0) {
-    return { title: "ครอบครัวที่กำลังค้นหาตัวเอง", subtitle: "ยังมีเวลาเติมความรักให้กัน", emoji: "🌱", bgGradient: "linear-gradient(135deg, #F5EBC8, #FDF9F0)", borderColor: "#E8D89A", description: "ครอบครัวของคุณยังมีพื้นที่ให้เติบโต ทุกก้าวเล็กๆ ของการพูดคุยกัน คือจุดเริ่มต้นที่ดี" };
+    return { title: "กำลังเริ่มต้นการเดินทาง", subtitle: "ยังมีเวลาพัฒนาได้เสมอ", emoji: "🌱", bgGradient: "linear-gradient(135deg, #F5EBC8, #FDF9F0)", borderColor: "#E8D89A", description: "ทุกก้าวเล็กๆ ของการเรียนรู้ คือจุดเริ่มต้นที่ดี ลองตอบคำถามให้มากขึ้น!" };
   }
 
-  if (dominant.includes("communication") && dominant.includes("empathy")) {
-    return { title: "ครอบครัวแห่งการเข้าใจ", subtitle: "เปิดใจ รับฟัง และเข้าอกเข้าใจกัน", emoji: "💬❤️", bgGradient: "linear-gradient(135deg, #B8E4F0, #FADCE3)", borderColor: "#8FD4C8", description: "ครอบครัวของคุณมีการสื่อสารที่เปิดเผยและเข้าใจกันอย่างลึกซึ้ง นี่คือรากฐานที่แข็งแกร่งของความสัมพันธ์ที่ยั่งยืน" };
+  if (dominant.includes("SE") && dominant.includes("RES")) {
+    return { title: "นักสู้ผู้มั่นใจ", subtitle: "เชื่อมั่นในตัวเอง และไม่ยอมแพ้", emoji: "💪🌱", bgGradient: "linear-gradient(135deg, #E8E0FA, #FFF8E1)", borderColor: "#7B68EE", description: "มีความมั่นใจในตัวเองสูงและสามารถฟื้นตัวจากปัญหาได้ดี เป็นพื้นฐานสำคัญของการเติบโต" };
   }
-  if (dominant.includes("trust") && dominant.includes("communication")) {
-    return { title: "ครอบครัวแห่งความไว้วางใจ", subtitle: "เชื่อมั่น ซื่อสัตย์ และพูดความจริงต่อกัน", emoji: "🤝💬", bgGradient: "linear-gradient(135deg, #B8E4F0, #E8F8F5)", borderColor: "#5BB8A8", description: "พื้นฐานของครอบครัวคุณคือความซื่อสัตย์และไว้ใจกัน สมาชิกทุกคนรู้สึกปลอดภัยในการพูดความจริง" };
+  if (dominant.includes("COM") && dominant.includes("ER")) {
+    return { title: "นักสื่อสารผู้ใจเย็น", subtitle: "พูดคุยเก่ง และจัดการอารมณ์ได้ดี", emoji: "💬🧘", bgGradient: "linear-gradient(135deg, #B8E4F0, #FADCE3)", borderColor: "#1B7B7E", description: "มีทักษะการสื่อสารที่ดี ควบคู่กับการจัดการอารมณ์อย่างเหมาะสม ช่วยให้อยู่ร่วมกับคนอื่นได้อย่างราบรื่น" };
   }
-  if (dominant.includes("quality_time") && dominant.includes("empathy")) {
-    return { title: "ครอบครัวแห่งความอบอุ่น", subtitle: "ใช้เวลาด้วยกัน อย่างมีความหมาย", emoji: "⏰❤️", bgGradient: "linear-gradient(135deg, #FADCE3, #FFF8E1)", borderColor: "#F0A0B0", description: "ครอบครัวของคุณให้ความสำคัญกับเวลาคุณภาพและแสดงความรักผ่านการอยู่เคียงข้างกัน" };
+  if (dominant.includes("SE") && dominant.includes("COM")) {
+    return { title: "ผู้นำที่กล้าพูด", subtitle: "มั่นใจและสื่อสารได้อย่างชัดเจน", emoji: "💪💬", bgGradient: "linear-gradient(135deg, #E8E0FA, #B8E4F0)", borderColor: "#5B68AE", description: "เชื่อมั่นในตัวเองและสามารถบอกความคิดให้คนอื่นเข้าใจได้ เหมาะกับบทบาทผู้นำ" };
   }
-  if (dominant.includes("growth") && dominant.includes("quality_time")) {
-    return { title: "ครอบครัวแห่งการเติบโต", subtitle: "เรียนรู้และพัฒนาไปด้วยกันเสมอ", emoji: "🌱⏰", bgGradient: "linear-gradient(135deg, #E8F5E9, #FFF8E1)", borderColor: "#7B68EE", description: "ครอบครัวคุณชอบค้นหาประสบการณ์ใหม่ร่วมกัน และสนับสนุนการพัฒนาของแต่ละคน" };
-  }
-  if (dominant.includes("boundaries") && dominant.includes("trust")) {
-    return { title: "ครอบครัวแห่งการเคารพกัน", subtitle: "เคารพพื้นที่ส่วนตัวและไว้วางใจกัน", emoji: "🌿🤝", bgGradient: "linear-gradient(135deg, #E8F5E9, #E8F5FE)", borderColor: "#7A9E7A", description: "ครอบครัวคุณให้ความสำคัญกับความเป็นตัวเองของแต่ละคน ในขณะเดียวกันก็ไว้วางใจซึ่งกันและกัน" };
+  if (dominant.includes("RES") && dominant.includes("ER")) {
+    return { title: "นักฟื้นตัวผู้สงบ", subtitle: "รับมือกับปัญหาได้อย่างใจเย็น", emoji: "🌱🧘", bgGradient: "linear-gradient(135deg, #FFF8E1, #FADCE3)", borderColor: "#E8A838", description: "มีความยืดหยุ่นสูงและจัดการอารมณ์ได้ดี ทำให้รับมือกับสถานการณ์ยากๆ ได้อย่างสงบ" };
   }
 
   // Default: most prominent single trait
   const top = dominant[0];
   const m = TRAIT_META[top];
   return {
-    title: `ครอบครัวที่มุ่งเน้น${m.label}`,
+    title: `โดดเด่นด้าน${m.label}`,
     subtitle: m.description,
     emoji: m.icon,
     bgGradient: `linear-gradient(135deg, ${m.color}15, ${m.color}08)`,
     borderColor: m.color,
-    description: `ครอบครัวของคุณให้ความสำคัญกับ${m.label}เป็นพิเศษ ลองเสริมด้านอื่นๆ เพิ่มเติมเพื่อความสัมพันธ์ที่สมดุล`,
+    description: `โดดเด่นด้าน${m.label}เป็นพิเศษ ลองพัฒนาด้านอื่นๆ เพิ่มเติมเพื่อทักษะที่สมดุล`,
   };
 }
 

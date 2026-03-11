@@ -9,7 +9,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGame, CHARACTERS } from "@/context/GameContext";
-import { getQuestionByCode } from "@/data/questions";
+import { getQuestionByCode, getAllQuestionCodes } from "@/data/questions";
 import type { Question } from "@/data/questions";
 import CountdownTimer from "@/components/common/CountdownTimer";
 import GlobalTimer from "@/components/common/GlobalTimer";
@@ -51,7 +51,7 @@ export default function PlayPage() {
     const code = questionCode.trim().toUpperCase();
     if (!code) { setInputError("กรุณาใส่รหัสคำถาม"); return; }
     const question = getQuestionByCode(code);
-    if (!question) { setInputError("ไม่พบรหัส " + code + " (ใช้ Q1–Q20)"); return; }
+    if (!question) { setInputError("ไม่พบรหัส " + code); return; }
     setCurrentQuestion(question);
     setSelectedAnswer(null);
     setTimerKey((k) => k + 1);
@@ -231,10 +231,15 @@ export default function PlayPage() {
                 </Box>
                 <Typography variant="h5" fontWeight={600} sx={{ mb: 1, color: "#1B7B7E" }}>ใส่รหัสคำถาม</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  ใส่รหัสจากการ์ดคำถาม (Q1 – Q20)
+                  ใส่รหัสจากการ์ดคำถาม
                 </Typography>
+                {(() => { const codes = getAllQuestionCodes(); return (
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: "block", textAlign: "center" }}>
+                    รหัสที่ใช้ได้: {codes[0]} – {codes[codes.length - 1]}
+                  </Typography>
+                ); })()}
                 <TextField
-                  fullWidth placeholder="เช่น Q1, Q15"
+                  fullWidth placeholder={`เช่น ${getAllQuestionCodes()[0]}`}
                   value={questionCode}
                   onChange={(e) => { setQuestionCode(e.target.value); setInputError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && handleCodeSubmit()}

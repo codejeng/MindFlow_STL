@@ -25,12 +25,10 @@ export const CHARACTERS: CharacterDef[] = [
 export type PlayerRole = "parent" | "child";
 
 export interface TraitPoints {
-  communication: number;
-  empathy: number;
-  trust: number;
-  quality_time: number;
-  boundaries: number;
-  growth: number;
+  SE: number;   // Self-Efficacy
+  COM: number;  // Communication
+  RES: number;  // Resilience
+  ER: number;   // Emotional Regulation
 }
 
 export interface Player {
@@ -87,18 +85,15 @@ interface GameContextType extends GameState {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const emptyTraits = (): TraitPoints => ({
-  communication: 0, empathy: 0, trust: 0,
-  quality_time: 0, boundaries: 0, growth: 0,
+  SE: 0, COM: 0, RES: 0, ER: 0,
 });
 
 function addTraits(a: TraitPoints, b: Partial<TraitPoints>): TraitPoints {
   return {
-    communication: a.communication + (b.communication ?? 0),
-    empathy: a.empathy + (b.empathy ?? 0),
-    trust: a.trust + (b.trust ?? 0),
-    quality_time: a.quality_time + (b.quality_time ?? 0),
-    boundaries: a.boundaries + (b.boundaries ?? 0),
-    growth: a.growth + (b.growth ?? 0),
+    SE: a.SE + (b.SE ?? 0),
+    COM: a.COM + (b.COM ?? 0),
+    RES: a.RES + (b.RES ?? 0),
+    ER: a.ER + (b.ER ?? 0),
   };
 }
 
