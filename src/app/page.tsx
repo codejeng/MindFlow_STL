@@ -353,10 +353,10 @@ export default function Home() {
         {/* ─── FEATURE CARDS 2x2 ─── */}
         <Box
           component={motion.div}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, mb: 4, px: 1 }}
+          sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, mt: 4, mb: 4, px: 1 }}
         >
           {FEATURES.map((feature, i) => (
             <Box
