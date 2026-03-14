@@ -647,6 +647,59 @@ export default function Home() {
             ))}
           </Box>
         </Box>
+
+        {/* ─── AWARDS & RECOGNITION SECTION ─── */}
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          sx={{ mt: 6, mb: 4, px: 2, textAlign: "center" }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              display: "inline-block",
+              px: 2,
+              py: 0.75,
+              borderRadius: 4,
+              backgroundColor: "#FFF3E0",
+              color: "#E65100",
+              fontWeight: 700,
+              fontSize: "0.75rem",
+              letterSpacing: "0.05em",
+              mb: 2,
+            }}
+          >
+            🏆 AWARDS & RECOGNITION
+          </Typography>
+
+          <Typography variant="h6" fontWeight={800} sx={{ color: "#2D3748", mb: 1, lineHeight: 1.4 }}>
+            THE HEALTH PROMOTION <br /> INNOVATION PLAYGROUND
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#718096", mb: 4 }}>
+            ต้นแบบนวัตกรรมสร้างเสริมสุขภาพ
+          </Typography>
+
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: 220,
+              borderRadius: 4,
+              overflow: "hidden",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
+              mb: 2,
+            }}
+          >
+            <Image
+              src="/images/team.jpg"
+              alt="The Health Promotion Innovation Playground Team"
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          </Box>
+        </Box>
       </Container>
     </Box>
   );
