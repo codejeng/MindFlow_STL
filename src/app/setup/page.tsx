@@ -9,7 +9,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGame, CHARACTERS } from "@/context/GameContext";
-import type { PlayerRole } from "@/context/GameContext";
+import type { PlayerRole, AgeGroup } from "@/context/GameContext";
 import PageTransition from "@/components/common/PageTransition";
 import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -23,22 +23,17 @@ export default function SetupPage() {
   const { players, addPlayer, removePlayer, setTurnOrder, setGamePhase, timeLimit, setTimeLimit } = useGame();
   const [name, setName] = useState("");
   const [role, setRole] = useState<PlayerRole>("parent");
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>("ต้น");
   const [selectedChar, setSelectedChar] = useState(CHARACTERS[0].id);
   const [error, setError] = useState("");
-
-  // Already-used character IDs
-  const usedChars = players.map((p) => p.characterId);
 
   const handleAdd = () => {
     const trimmed = name.trim();
     if (!trimmed) { setError("กรุณาใส่ชื่อผู้เล่น"); return; }
     if (players.length >= 5) { setError("ผู้เล่นเต็มแล้ว (สูงสุด 5 คน)"); return; }
-    addPlayer(trimmed, role, selectedChar);
+    addPlayer(trimmed, role, ageGroup, selectedChar);
     setName("");
     setError("");
-    // Auto-advance to next unused character
-    const nextChar = CHARACTERS.find((c) => !usedChars.includes(c.id) && c.id !== selectedChar);
-    if (nextChar) setSelectedChar(nextChar.id);
   };
 
   const handleNext = () => {
@@ -91,24 +86,22 @@ export default function SetupPage() {
           <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>เลือกตัวละคร</Typography>
           <Box sx={{ display: "flex", gap: 1, mb: 2, justifyContent: "center" }}>
             {CHARACTERS.map((char) => {
-              const isUsed = usedChars.includes(char.id);
               const isSelected = selectedChar === char.id;
               return (
                 <Box
                   key={char.id}
                   component={motion.div}
-                  whileHover={isUsed ? {} : { scale: 1.08 }}
-                  whileTap={isUsed ? {} : { scale: 0.95 }}
-                  onClick={() => !isUsed && setSelectedChar(char.id)}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedChar(char.id)}
                   sx={{
                     position: "relative",
                     width: 100,
                     height: 100,
                     borderRadius: 2,
                     overflow: "visible",
-                    cursor: isUsed ? "not-allowed" : "pointer",
+                    cursor: "pointer",
                     border: `3px solid ${isSelected ? char.baseColor : "transparent"}`,
-                    opacity: isUsed ? 0.35 : 1,
                     backgroundColor: isSelected ? char.baseColor + "18" : "transparent",
                     display: "flex",
                     flexDirection: "column",
@@ -148,6 +141,24 @@ export default function SetupPage() {
             </ToggleButton>
             <ToggleButton value="child" sx={{ borderRadius: "12px !important", textTransform: "none", fontWeight: 500, "&.Mui-selected": { backgroundColor: "#FFF3E0", color: "#E65100", borderColor: "#FF9800" } }}>
               <ChildCareIcon sx={{ mr: 0.5 }} /> ลูก
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          {/* Age Group toggle */}
+          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>ช่วงวัย</Typography>
+          <ToggleButtonGroup
+            value={ageGroup} exclusive
+            onChange={(_, val) => val && setAgeGroup(val)}
+            fullWidth sx={{ mb: 3 }}
+          >
+            <ToggleButton value="ต้น" sx={{ borderRadius: "12px !important", mr: 1, fontWeight: 500 }}>
+              ม.ต้น
+            </ToggleButton>
+            <ToggleButton value="ปลาย" sx={{ borderRadius: "12px !important", mr: 1, fontWeight: 500 }}>
+              ม.ปลาย
+            </ToggleButton>
+            <ToggleButton value="ทั่วไป" sx={{ borderRadius: "12px !important", fontWeight: 500 }}>
+              ทั่วไป
             </ToggleButton>
           </ToggleButtonGroup>
 
@@ -196,7 +207,7 @@ export default function SetupPage() {
                   <Box sx={{ flex: 1 }}>
                     <Typography fontWeight={600} sx={{ color: char?.baseColor }}>{player.name}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"}
+                      {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"} ({player.ageGroup})
                     </Typography>
                   </Box>
                   <Typography sx={{ fontWeight: 700, color: "#CCC", mr: 0.5 }}>#{i + 1}</Typography>

@@ -23,6 +23,7 @@ export const CHARACTERS: CharacterDef[] = [
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type PlayerRole = "parent" | "child";
+export type AgeGroup = "ต้น" | "ปลาย" | "ทั่วไป";
 
 export interface TraitPoints {
   SE: number;   // Self-Efficacy
@@ -35,6 +36,7 @@ export interface Player {
   id: string;
   name: string;
   role: PlayerRole;
+  ageGroup: AgeGroup;
   characterId: string;
   stats: {
     questionsAnswered: number;
@@ -65,7 +67,7 @@ interface GameState {
 }
 
 interface GameContextType extends GameState {
-  addPlayer: (name: string, role: PlayerRole, characterId: string) => void;
+  addPlayer: (name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => void;
   removePlayer: (id: string) => void;
   updatePlayer: (id: string, updates: Partial<Pick<Player, "name" | "role" | "characterId">>) => void;
   setTurnOrder: (order: string[]) => void;
@@ -119,7 +121,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     gameStartTime: null,
   });
 
-  const addPlayer = useCallback((name: string, role: PlayerRole, characterId: string) => {
+  const addPlayer = useCallback((name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => {
     setState((prev) => {
       if (prev.players.length >= 5) return prev;
       const char = CHARACTERS.find((c) => c.id === characterId) ?? CHARACTERS[prev.players.length % CHARACTERS.length];
@@ -127,6 +129,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         id: `player-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         name,
         role,
+        ageGroup,
         characterId: char.id,
         stats: { questionsAnswered: 0, traitPoints: emptyTraits(), passTokens: 2 },
       };

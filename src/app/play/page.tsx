@@ -39,8 +39,7 @@ export default function PlayPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerKey, setTimerKey] = useState(0);
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const [selectedNumberStr, setSelectedNumberStr] = useState<string>("");
   const [inputError, setInputError] = useState("");
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -51,9 +50,24 @@ export default function PlayPage() {
   const totalTurns = turnOrder.length;
   const char = CHARACTERS.find((c) => c.id === currentPlayer?.characterId);
 
+  // Calculate prefix based on player's ageGroup and role
+  const getCardPrefix = () => {
+    if (!currentPlayer) return "U";
+    if (currentPlayer.role === "child") {
+      if (currentPlayer.ageGroup === "ต้น") return "P";
+      if (currentPlayer.ageGroup === "ปลาย") return "L";
+      return "U";
+    } else {
+      if (currentPlayer.ageGroup === "ต้น") return "PP";
+      if (currentPlayer.ageGroup === "ปลาย") return "LL";
+      return "UU";
+    }
+  };
+  const cardPrefix = getCardPrefix();
+
   const handleCodeSubmit = () => {
-    if (!selectedLetter || selectedNumber === null) { setInputError("กรุณาเลือกรหัสให้ครบ"); return; }
-    const code = `${selectedLetter}${selectedNumber.toString().padStart(2, "0")}`;
+    if (!selectedNumberStr) { setInputError("กรุณาใส่หมายเลขการ์ด"); return; }
+    const code = `${cardPrefix}${selectedNumberStr.padStart(2, "0")}`;
     const question = getQuestionByCode(code);
     if (!question) { setInputError("ไม่พบรหัส " + code); return; }
     setCurrentQuestion(question);
@@ -90,8 +104,7 @@ export default function PlayPage() {
 
   const handleFinishTurn = () => {
     setPlayState("turn");
-    setSelectedLetter(null);
-    setSelectedNumber(null);
+    setSelectedNumberStr("");
     setCurrentQuestion(null);
     setSelectedAnswer(null);
     nextTurn();
@@ -235,92 +248,111 @@ export default function PlayPage() {
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, color: "#1B7B7E" }}>เลือกรหัสการ์ด</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>เลือกตัวอักษร แล้วเลือกเลข</Typography>
 
-                {/* ── Step 1: Letter ── */}
-                <Typography variant="caption" fontWeight={700} sx={{ color: "#718096", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", mb: 1 }}>
-                  ขั้นที่ 1 — ประเภทการ์ด
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", mb: 3 }}>
-                  {[
-                    { letter: "P", label: "ผู้ปกครอง", color: "#1B7B7E", bg: "#E0F4F4", imgId: "grandpa" }, // A
-                    { letter: "L", label: "ลูก",        color: "#7B68EE", bg: "#EEF0FF", imgId: "mom" }, // D
-                    { letter: "U", label: "ทั่วไป",    color: "#E8A030", bg: "#FFF3DC", imgId: "daughter" }, // C
-                  ].map(({ letter, label, color, bg, imgId }) => {
-                    const active = selectedLetter === letter;
-                    const charData = CHARACTERS.find((c) => c.id === imgId);
-                    
-                    return (
-                      <Box
-                        key={letter}
-                        component={motion.div}
-                        whileHover={{ scale: 1.06 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => { setSelectedLetter(letter); setSelectedNumber(null); setInputError(""); }}
-                        sx={{
-                          flex: 1, py: 1.5, borderRadius: 3, cursor: "pointer",
-                          backgroundColor: active ? color : bg,
-                          border: `2px solid ${active ? color : "transparent"}`,
-                          boxShadow: active ? `0 4px 14px ${color}44` : "none",
-                          transition: "all 0.2s",
-                          display: "flex", flexDirection: "column", alignItems: "center"
-                        }}
-                      >
-                        <Box sx={{ width: 44, height: 56, position: "relative", mb: 0.5 }}>
-                          {charData && <Image src={charData.image} alt={label} fill style={{ objectFit: "contain" }} />}
-                        </Box>
-                        <Typography fontWeight={700} sx={{ color: active ? "white" : color, fontSize: "1.1rem", mt: 0.25 }}>{letter}</Typography>
-                        <Typography sx={{ color: active ? "rgba(255,255,255,0.85)" : "#555", fontSize: "0.7rem", fontWeight: 500 }}>{label}</Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-
-                {/* ── Step 2: Number ── */}
-                {selectedLetter && (
+                {/* ── Numpad ── */}
                   <Box component={motion.div} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <Typography variant="caption" fontWeight={700} sx={{ color: "#718096", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", mb: 1.5 }}>
-                      ขั้นที่ 2 — หมายเลขการ์ด
+                      พิมพ์รหัสการ์ดบนโต๊ะของตนเอง
                     </Typography>
-                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, mb: 2.5 }}>
-                      {Array.from({ length: 16 }, (_, i) => i).map((n) => {
-                        const active = selectedNumber === n;
-                        const letterColor = selectedLetter === "P" ? "#1B7B7E" : selectedLetter === "L" ? "#7B68EE" : "#E8A030";
-                        return (
-                          <Box
-                            key={n}
-                            component={motion.div}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => { setSelectedNumber(n); setInputError(""); }}
-                            sx={{
-                              py: 1.25, borderRadius: 2.5, cursor: "pointer",
-                              backgroundColor: active ? letterColor : `${letterColor}14`,
-                              border: `2px solid ${active ? letterColor : "transparent"}`,
-                              boxShadow: active ? `0 3px 10px ${letterColor}44` : "none",
-                              transition: "all 0.15s",
-                            }}
-                          >
-                            <Typography fontWeight={700} sx={{ color: active ? "white" : letterColor, fontSize: "0.95rem" }}>
-                              {n.toString().padStart(2, "0")}
-                            </Typography>
-                          </Box>
-                        );
-                      })}
+                    
+                    {/* Display current typed number */}
+                    <Box sx={{ mb: 2, height: 48, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <Typography fontWeight={700} sx={{
+                        fontSize: "2rem", letterSpacing: "0.15em",
+                        color: selectedNumberStr ? "#2D3748" : "#CBD5E0",
+                        borderBottom: selectedNumberStr ? "2px solid #1B7B7E" : "1px dashed #CBD5E0",
+                        minWidth: 80, pb: 0.5
+                      }}>
+                        {selectedNumberStr || "_ _"}
+                      </Typography>
+                    </Box>
+
+                    {/* 3x4 Numpad */}
+                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1.5, mb: 2.5, maxWidth: 240, mx: "auto" }}>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                        <Box
+                          key={n}
+                          component={motion.div}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            if (selectedNumberStr.length >= 2) return;
+                            setSelectedNumberStr(prev => prev + n.toString());
+                            setInputError("");
+                          }}
+                          sx={{
+                            py: 1.5, borderRadius: 3, cursor: "pointer",
+                            backgroundColor: "#F7FAFC",
+                            border: "1px solid #E2E8F0",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                            display: "flex", justifyContent: "center", alignItems: "center",
+                          }}
+                        >
+                          <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>
+                            {n}
+                          </Typography>
+                        </Box>
+                      ))}
+
+                      {/* Empty bottom-left (or could be clear all) */}
+                      <Box sx={{ visibility: "hidden" }} />
+
+                      {/* 0 */}
+                      <Box
+                        component={motion.div}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          if (selectedNumberStr.length >= 2) return;
+                          setSelectedNumberStr(prev => prev + "0");
+                          setInputError("");
+                        }}
+                        sx={{
+                          py: 1.5, borderRadius: 3, cursor: "pointer",
+                          backgroundColor: "#F7FAFC",
+                          border: "1px solid #E2E8F0",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                          display: "flex", justifyContent: "center", alignItems: "center",
+                        }}
+                      >
+                        <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>0</Typography>
+                      </Box>
+
+                      {/* Delete */}
+                      <Box
+                        component={motion.div}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setSelectedNumberStr(prev => prev.slice(0, -1));
+                          setInputError("");
+                        }}
+                        sx={{
+                          py: 1.5, borderRadius: 3, cursor: "pointer",
+                          backgroundColor: "#FEFCBF",
+                          border: "1px solid #F6E05E",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                          display: "flex", justifyContent: "center", alignItems: "center",
+                        }}
+                      >
+                        <Typography fontWeight={700} sx={{ color: "#D69E2E", fontSize: "1.1rem" }}>
+                          ⌫
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
-                )}
 
                 {/* ── Preview ── */}
-                {selectedLetter && selectedNumber !== null && (
+                {selectedNumberStr && (
                   <Box component={motion.div} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                     sx={{ display: "inline-flex", alignItems: "center", gap: 1, px: 2.5, py: 1,
-                      borderRadius: 3, mb: 2,
+                      borderRadius: 3, mb: 2, mt: 2,
                       background: "linear-gradient(135deg, #1B7B7E18, #5BB8A818)",
                       border: "1.5px solid #1B7B7E44",
                     }}
                   >
                     <Typography sx={{ fontSize: "1rem" }}>🃏</Typography>
                     <Typography fontWeight={700} sx={{ color: "#1B7B7E", fontSize: "1.1rem", letterSpacing: "0.08em" }}>
-                      {selectedLetter}{selectedNumber.toString().padStart(2, "0")}
+                      {cardPrefix}{selectedNumberStr.padStart(2, "0")}
                     </Typography>
                   </Box>
                 )}
@@ -331,10 +363,10 @@ export default function PlayPage() {
 
                 {/* ── Actions ── */}
                 <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-                  <Button variant="outlined" onClick={() => { setPlayState("turn"); setSelectedLetter(null); setSelectedNumber(null); setInputError(""); }}
+                  <Button variant="outlined" onClick={() => { setPlayState("turn"); setSelectedNumberStr(""); setInputError(""); }}
                     sx={{ flex: 1, py: 1.5, borderRadius: 3 }}>ยกเลิก</Button>
                   <Button variant="contained" color="primary" onClick={handleCodeSubmit}
-                    disabled={!selectedLetter || selectedNumber === null}
+                    disabled={!selectedNumberStr}
                     sx={{ flex: 2, py: 1.5, borderRadius: 3, fontSize: "1rem", fontWeight: 700, color: "white" }}>ยืนยัน</Button>
                 </Box>
               </Box>
