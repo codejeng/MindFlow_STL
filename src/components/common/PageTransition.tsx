@@ -38,6 +38,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       initial="initial"
       animate="animate"
       exit="exit"
+      style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}
     >
       {children}
     </motion.div>
