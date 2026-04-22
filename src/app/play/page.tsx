@@ -123,6 +123,7 @@ export default function PlayPage() {
     setSelectedNumberStr("");
     setCurrentQuestion(null);
     setSelectedAnswer(null);
+
     nextTurn();
   };
 
@@ -253,7 +254,7 @@ export default function PlayPage() {
             </motion.div>
           )}
 
-          {/* ─── CARD CODE CHIP SELECTOR ─── */}
+          {/* ─── CARD CODE NUMPAD ─── */}
           {playState === "input" && (
             <motion.div key="input" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.3 }}>
               <Box sx={{ backgroundColor: "white", borderRadius: 4, p: 3, boxShadow: "0 8px 30px rgba(0,0,0,0.08)", textAlign: "center" }}>
@@ -262,64 +263,34 @@ export default function PlayPage() {
                   {char && <Image src={char.image} alt={char.name} fill style={{ objectFit: "contain" }} />}
                 </Box>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, color: "#1B7B7E" }}>เลือกรหัสการ์ด</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>เลือกตัวอักษร แล้วเลือกเลข</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>พิมพ์รหัสการ์ดบนโต๊ะของตนเอง</Typography>
 
                 {/* ── Numpad ── */}
-                  <Box component={motion.div} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                    <Typography variant="caption" fontWeight={700} sx={{ color: "#718096", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", mb: 1.5 }}>
-                      พิมพ์รหัสการ์ดบนโต๊ะของตนเอง
+                <Box component={motion.div} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+
+                  {/* Display current typed number */}
+                  <Box sx={{ mb: 2, height: 48, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <Typography fontWeight={700} sx={{
+                      fontSize: "2rem", letterSpacing: "0.15em",
+                      color: selectedNumberStr ? "#2D3748" : "#CBD5E0",
+                      borderBottom: selectedNumberStr ? "2px solid #1B7B7E" : "1px dashed #CBD5E0",
+                      minWidth: 80, pb: 0.5
+                    }}>
+                      {selectedNumberStr || "_ _"}
                     </Typography>
-                    
-                    {/* Display current typed number */}
-                    <Box sx={{ mb: 2, height: 48, display: "flex", justifyContent: "center", alignItems: "center" }}>
-                      <Typography fontWeight={700} sx={{
-                        fontSize: "2rem", letterSpacing: "0.15em",
-                        color: selectedNumberStr ? "#2D3748" : "#CBD5E0",
-                        borderBottom: selectedNumberStr ? "2px solid #1B7B7E" : "1px dashed #CBD5E0",
-                        minWidth: 80, pb: 0.5
-                      }}>
-                        {selectedNumberStr || "_ _"}
-                      </Typography>
-                    </Box>
+                  </Box>
 
-                    {/* 3x4 Numpad */}
-                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1.5, mb: 2.5, maxWidth: 240, mx: "auto" }}>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-                        <Box
-                          key={n}
-                          component={motion.div}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            if (selectedNumberStr.length >= 2) return;
-                            setSelectedNumberStr(prev => prev + n.toString());
-                            setInputError("");
-                          }}
-                          sx={{
-                            py: 1.5, borderRadius: 3, cursor: "pointer",
-                            backgroundColor: "#F7FAFC",
-                            border: "1px solid #E2E8F0",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                            display: "flex", justifyContent: "center", alignItems: "center",
-                          }}
-                        >
-                          <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>
-                            {n}
-                          </Typography>
-                        </Box>
-                      ))}
-
-                      {/* Empty bottom-left (or could be clear all) */}
-                      <Box sx={{ visibility: "hidden" }} />
-
-                      {/* 0 */}
+                  {/* 3x4 Numpad */}
+                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1.5, mb: 2.5, maxWidth: 240, mx: "auto" }}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                       <Box
+                        key={n}
                         component={motion.div}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => {
                           if (selectedNumberStr.length >= 2) return;
-                          setSelectedNumberStr(prev => prev + "0");
+                          setSelectedNumberStr(prev => prev + n.toString());
                           setInputError("");
                         }}
                         sx={{
@@ -330,32 +301,59 @@ export default function PlayPage() {
                           display: "flex", justifyContent: "center", alignItems: "center",
                         }}
                       >
-                        <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>0</Typography>
-                      </Box>
-
-                      {/* Delete */}
-                      <Box
-                        component={motion.div}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setSelectedNumberStr(prev => prev.slice(0, -1));
-                          setInputError("");
-                        }}
-                        sx={{
-                          py: 1.5, borderRadius: 3, cursor: "pointer",
-                          backgroundColor: "#FEFCBF",
-                          border: "1px solid #F6E05E",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                          display: "flex", justifyContent: "center", alignItems: "center",
-                        }}
-                      >
-                        <Typography fontWeight={700} sx={{ color: "#D69E2E", fontSize: "1.1rem" }}>
-                          ⌫
+                        <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>
+                          {n}
                         </Typography>
                       </Box>
+                    ))}
+
+                    {/* Empty bottom-left */}
+                    <Box sx={{ visibility: "hidden" }} />
+
+                    {/* 0 */}
+                    <Box
+                      component={motion.div}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (selectedNumberStr.length >= 2) return;
+                        setSelectedNumberStr(prev => prev + "0");
+                        setInputError("");
+                      }}
+                      sx={{
+                        py: 1.5, borderRadius: 3, cursor: "pointer",
+                        backgroundColor: "#F7FAFC",
+                        border: "1px solid #E2E8F0",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                        display: "flex", justifyContent: "center", alignItems: "center",
+                      }}
+                    >
+                      <Typography fontWeight={700} sx={{ color: "#4A5568", fontSize: "1.25rem" }}>0</Typography>
+                    </Box>
+
+                    {/* Delete */}
+                    <Box
+                      component={motion.div}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setSelectedNumberStr(prev => prev.slice(0, -1));
+                        setInputError("");
+                      }}
+                      sx={{
+                        py: 1.5, borderRadius: 3, cursor: "pointer",
+                        backgroundColor: "#FEFCBF",
+                        border: "1px solid #F6E05E",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                        display: "flex", justifyContent: "center", alignItems: "center",
+                      }}
+                    >
+                      <Typography fontWeight={700} sx={{ color: "#D69E2E", fontSize: "1.1rem" }}>
+                        ⌫
+                      </Typography>
                     </Box>
                   </Box>
+                </Box>
 
                 {/* ── Preview ── */}
                 {selectedNumberStr && (

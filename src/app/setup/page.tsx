@@ -17,6 +17,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
 import CloseIcon from "@mui/icons-material/Close";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
 
 export default function SetupPage() {
   const router = useRouter();
@@ -145,25 +146,66 @@ export default function SetupPage() {
           </ToggleButtonGroup>
 
           {/* Age Group toggle */}
-          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>ช่วงวัย</Typography>
-          <ToggleButtonGroup
-            value={ageGroup} exclusive
-            onChange={(_, val) => val && setAgeGroup(val)}
-            fullWidth sx={{ mb: 3 }}
-          >
-            <ToggleButton value="ประถม" sx={{ borderRadius: "12px !important", mr: 1, fontWeight: 500 }}>
-              ประถม
-            </ToggleButton>
-            <ToggleButton value="ม.ต้น" sx={{ borderRadius: "12px !important", mr: 1, fontWeight: 500 }}>
-              ม.ต้น
-            </ToggleButton>
-            <ToggleButton value="ม.ปลาย" sx={{ borderRadius: "12px !important", mr: 1, fontWeight: 500 }}>
-              ม.ปลาย
-            </ToggleButton>
-            <ToggleButton value="ทั่วไป" sx={{ borderRadius: "12px !important", fontWeight: 500 }}>
-              ทั่วไป
-            </ToggleButton>
-          </ToggleButtonGroup>
+          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>ช่วงวัย (ชุดการ์ด)</Typography>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.5, mb: 3 }}>
+            {([
+              { value: "ประถม",  emoji: "🎒", label: "ประถม",   cardCount: 15, available: true  },
+              { value: "ม.ต้น",  emoji: "📚", label: "ม.ต้น",   cardCount: 15, available: false },
+              { value: "ม.ปลาย",emoji: "🎓", label: "ม.ปลาย", cardCount: 15, available: false },
+              { value: "ทั่วไป", emoji: "🌟", label: "ทั่วไป",  cardCount: 15, available: false },
+            ] as { value: AgeGroup; emoji: string; label: string; cardCount: number; available: boolean }[]).map((ag) => (
+              <Box
+                key={ag.value}
+                component={motion.div}
+                whileTap={ag.available ? { scale: 0.97 } : {}}
+                onClick={() => ag.available && setAgeGroup(ag.value)}
+                sx={{
+                  position: "relative",
+                  borderRadius: 2,
+                  p: 1.5,
+                  cursor: ag.available ? "pointer" : "not-allowed",
+                  opacity: ag.available ? 1 : 0.55,
+                  border: `2px solid ${
+                    ageGroup === ag.value
+                      ? "#1B7B7E"
+                      : ag.available ? "#E2E8F0" : "#E2E8F0"
+                  }`,
+                  backgroundColor: ageGroup === ag.value ? "#1B7B7E18" : "white",
+                  transition: "all 0.2s",
+                  boxShadow: ageGroup === ag.value ? "0 4px 12px rgba(27,123,126,0.2)" : "none",
+                }}
+              >
+                {/* Coming soon badge */}
+                {!ag.available && (
+                  <Box sx={{
+                    position: "absolute", top: 5, right: 5,
+                    display: "flex", alignItems: "center", gap: 0.3,
+                    backgroundColor: "#EDF2F7", borderRadius: 1.5, px: 0.8, py: 0.25,
+                  }}>
+                    <LockRoundedIcon sx={{ fontSize: 9, color: "#A0AEC0" }} />
+                    <Typography sx={{ fontSize: "0.55rem", color: "#A0AEC0", fontWeight: 700, lineHeight: 1 }}>เร็วๆ นี้</Typography>
+                  </Box>
+                )}
+
+                <Typography sx={{ fontSize: "1.4rem", lineHeight: 1, mb: 0.25 }}>{ag.emoji}</Typography>
+                <Typography fontWeight={700} sx={{
+                  fontSize: "0.9rem",
+                  color: ageGroup === ag.value ? "#1B7B7E" : ag.available ? "#2D3748" : "#A0AEC0",
+                }}>{ag.label}</Typography>
+
+                {/* Card count badge */}
+                <Box sx={{
+                  display: "inline-flex", alignItems: "center", mt: 0.5,
+                  backgroundColor: ageGroup === ag.value ? "#1B7B7E22" : "#F7FAFC",
+                  borderRadius: 1.5, px: 0.8, py: 0.25,
+                }}>
+                  <Typography sx={{ fontSize: "0.6rem", fontWeight: 700, color: ageGroup === ag.value ? "#1B7B7E" : "#A0AEC0" }}>
+                    🃏 {ag.cardCount} การ์ด
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
 
           <Button
             variant="contained" color="secondary" fullWidth
