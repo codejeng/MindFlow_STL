@@ -1,36 +1,44 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import type { Trait } from "@/data/questions";
 
 // ─── Character Definitions ────────────────────────────────────────────────────
 
 export interface CharacterDef {
   id: string;
   name: string;
-  image: string; // path under /characters/
+  image: string;
   baseColor: string;
 }
 
 export const CHARACTERS: CharacterDef[] = [
-  { id: "grandpa", name: "A", image: "/characters/grandpa.png", baseColor: "#7A9E7E" },
-  { id: "grandma", name: "B", image: "/characters/grandma.png", baseColor: "#E8A030" },
+  { id: "grandpa",  name: "A", image: "/characters/grandpa.png",  baseColor: "#7A9E7E" },
+  { id: "grandma",  name: "B", image: "/characters/grandma.png",  baseColor: "#E8A030" },
   { id: "daughter", name: "C", image: "/characters/daughter.png", baseColor: "#D4607A" },
-  { id: "mom", name: "D", image: "/characters/mom.png", baseColor: "#5BB8A8" },
-  { id: "dad", name: "E", image: "/characters/dad.png", baseColor: "#4A7AAE" },
+  { id: "mom",      name: "D", image: "/characters/mom.png",      baseColor: "#5BB8A8" },
+  { id: "dad",      name: "E", image: "/characters/dad.png",      baseColor: "#4A7AAE" },
 ];
+
+// ─── OEC Score (Openness / Empathy / Clarity) ─────────────────────────────────
+
+export interface OCEScore {
+  openness: number;  // 0-6
+  empathy:  number;  // 0-6
+  clarity:  number;  // 0-6
+}
+
+export const EMPTY_OCE = (): OCEScore => ({ openness: 0, empathy: 0, clarity: 0 });
+
+export const OCE_META = {
+  openness: { label: "การเปิดใจ",      labelEn: "Openness", icon: "💚", color: "#3D8B5E", bg: "#EAF7EE" },
+  empathy:  { label: "ความเข้าอกเข้าใจ", labelEn: "Empathy",  icon: "💛", color: "#C07A1A", bg: "#FEF6E5" },
+  clarity:  { label: "ความชัดเจนในตัวเอง", labelEn: "Clarity",  icon: "💙", color: "#2C6FAC", bg: "#E8F1FA" },
+} as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type PlayerRole = "parent" | "child";
-export type AgeGroup = "ประถม" | "ม.ต้น" | "ม.ปลาย" | "ทั่วไป";
-
-export interface TraitPoints {
-  SE: number;   // Self-Efficacy
-  COM: number;  // Communication
-  RES: number;  // Resilience
-  ER: number;   // Emotional Regulation
-}
+export type AgeGroup   = "ประถม" | "ม.ต้น" | "ม.ปลาย" | "ทั่วไป";
 
 export interface Player {
   id: string;
@@ -40,7 +48,8 @@ export interface Player {
   characterId: string;
   stats: {
     questionsAnswered: number;
-    traitPoints: TraitPoints;
+    oceTotal: OCEScore;           // running total of peer-given scores
+    selfReflectionTags: string[]; // tags selected each turn
     passTokens: number;
   };
 }
@@ -48,54 +57,48 @@ export interface Player {
 export interface QuestionResult {
   questionCode: string;
   playerId: string;
-  selectedAnswerIndex: number | null; // null = skipped/timeout
-  traitPointsEarned: Partial<Record<Trait, number>>;
-  usedPassToken?: boolean;
+  selfReflectionTag: string | null;
+  oceScore: OCEScore;             // peer scores for this turn
 }
 
 export type GamePhase = "setup" | "ordering" | "playing" | "finished";
 
 interface GameState {
-  players: Player[];
-  turnOrder: string[]; // player IDs
+  players:          Player[];
+  turnOrder:        string[];
   currentTurnIndex: number;
-  gamePhase: GamePhase;
-  questionHistory: QuestionResult[];
-  totalTraitPoints: TraitPoints; // aggregate across all players
-  timeLimit: number; // in minutes (45, 60, 90)
-  gameStartTime: number | null; // Date.now() timestamp
+  gamePhase:        GamePhase;
+  questionHistory:  QuestionResult[];
+  oceTotal:         OCEScore;   // aggregate across all players/turns
+  timeLimit:        number;     // minutes
+  gameStartTime:    number | null;
 }
 
 interface GameContextType extends GameState {
-  addPlayer: (name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => void;
-  removePlayer: (id: string) => void;
-  updatePlayer: (id: string, updates: Partial<Pick<Player, "name" | "role" | "characterId">>) => void;
-  setTurnOrder: (order: string[]) => void;
+  addPlayer:         (name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => void;
+  removePlayer:      (id: string) => void;
+  updatePlayer:      (id: string, updates: Partial<Pick<Player, "name" | "role" | "characterId">>) => void;
+  setTurnOrder:      (order: string[]) => void;
   randomizeTurnOrder: () => void;
-  setGamePhase: (phase: GamePhase) => void;
-  setTimeLimit: (minutes: number) => void;
-  setGameStartTime: (time: number) => void;
-  usePassToken: (playerId: string) => void;
-  nextTurn: () => void;
-  prevTurn: () => void;
-  getCurrentPlayer: () => Player | null;
-  recordAnswer: (result: QuestionResult) => void;
-  finishGame: () => void;
-  resetGame: () => void;
+  setGamePhase:      (phase: GamePhase) => void;
+  setTimeLimit:      (minutes: number) => void;
+  setGameStartTime:  (time: number) => void;
+  usePassToken:      (playerId: string) => void;
+  nextTurn:          () => void;
+  prevTurn:          () => void;
+  getCurrentPlayer:  () => Player | null;
+  recordTurnResult:  (result: QuestionResult) => void;
+  finishGame:        () => void;
+  resetGame:         () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const emptyTraits = (): TraitPoints => ({
-  SE: 0, COM: 0, RES: 0, ER: 0,
-});
-
-function addTraits(a: TraitPoints, b: Partial<TraitPoints>): TraitPoints {
+function addOCE(a: OCEScore, b: OCEScore): OCEScore {
   return {
-    SE: a.SE + (b.SE ?? 0),
-    COM: a.COM + (b.COM ?? 0),
-    RES: a.RES + (b.RES ?? 0),
-    ER: a.ER + (b.ER ?? 0),
+    openness: a.openness + b.openness,
+    empathy:  a.empathy  + b.empathy,
+    clarity:  a.clarity  + b.clarity,
   };
 }
 
@@ -104,21 +107,21 @@ function addTraits(a: TraitPoints, b: Partial<TraitPoints>): TraitPoints {
 const GameContext = createContext<GameContextType | null>(null);
 
 export function useGame(): GameContextType {
-  const context = useContext(GameContext);
-  if (!context) throw new Error("useGame must be used within a GameProvider");
-  return context;
+  const ctx = useContext(GameContext);
+  if (!ctx) throw new Error("useGame must be used within a GameProvider");
+  return ctx;
 }
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GameState>({
-    players: [],
-    turnOrder: [],
+    players:          [],
+    turnOrder:        [],
     currentTurnIndex: 0,
-    gamePhase: "setup",
-    questionHistory: [],
-    totalTraitPoints: emptyTraits(),
-    timeLimit: 60,
-    gameStartTime: null,
+    gamePhase:        "setup",
+    questionHistory:  [],
+    oceTotal:         EMPTY_OCE(),
+    timeLimit:        60,
+    gameStartTime:    null,
   });
 
   const addPlayer = useCallback((name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => {
@@ -127,11 +130,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const char = CHARACTERS.find((c) => c.id === characterId) ?? CHARACTERS[prev.players.length % CHARACTERS.length];
       const newPlayer: Player = {
         id: `player-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        name,
-        role,
-        ageGroup,
+        name, role, ageGroup,
         characterId: char.id,
-        stats: { questionsAnswered: 0, traitPoints: emptyTraits(), passTokens: 2 },
+        stats: {
+          questionsAnswered: 0,
+          oceTotal: EMPTY_OCE(),
+          selfReflectionTags: [],
+          passTokens: 2,
+        },
       };
       return { ...prev, players: [...prev.players, newPlayer] };
     });
@@ -164,17 +170,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setGamePhase = useCallback((phase: GamePhase) => {
-    setState((prev) => ({ ...prev, gamePhase: phase }));
-  }, []);
-
-  const setTimeLimit = useCallback((minutes: number) => {
-    setState((prev) => ({ ...prev, timeLimit: minutes }));
-  }, []);
-
-  const setGameStartTime = useCallback((time: number) => {
-    setState((prev) => ({ ...prev, gameStartTime: time }));
-  }, []);
+  const setGamePhase    = useCallback((phase: GamePhase) => setState((prev) => ({ ...prev, gamePhase: phase })), []);
+  const setTimeLimit    = useCallback((minutes: number) => setState((prev) => ({ ...prev, timeLimit: minutes })), []);
+  const setGameStartTime = useCallback((time: number)   => setState((prev) => ({ ...prev, gameStartTime: time })), []);
 
   const usePassToken = useCallback((playerId: string) => {
     setState((prev) => ({
@@ -197,20 +195,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const prevTurn = useCallback(() => {
     setState((prev) => ({
       ...prev,
-      currentTurnIndex: prev.currentTurnIndex === 0 ? prev.turnOrder.length - 1 : prev.currentTurnIndex - 1,
+      currentTurnIndex:
+        prev.currentTurnIndex === 0 ? prev.turnOrder.length - 1 : prev.currentTurnIndex - 1,
     }));
   }, []);
 
   const getCurrentPlayer = useCallback((): Player | null => {
-    const currentId = state.turnOrder[state.currentTurnIndex];
-    return state.players.find((p) => p.id === currentId) ?? null;
+    const id = state.turnOrder[state.currentTurnIndex];
+    return state.players.find((p) => p.id === id) ?? null;
   }, [state.turnOrder, state.currentTurnIndex, state.players]);
 
-  const recordAnswer = useCallback((result: QuestionResult) => {
+  const recordTurnResult = useCallback((result: QuestionResult) => {
     setState((prev) => ({
       ...prev,
       questionHistory: [...prev.questionHistory, result],
-      totalTraitPoints: addTraits(prev.totalTraitPoints, result.traitPointsEarned as Partial<TraitPoints>),
+      oceTotal: addOCE(prev.oceTotal, result.oceScore),
       players: prev.players.map((p) =>
         p.id === result.playerId
           ? {
@@ -218,7 +217,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
               stats: {
                 ...p.stats,
                 questionsAnswered: p.stats.questionsAnswered + 1,
-                traitPoints: addTraits(p.stats.traitPoints, result.traitPointsEarned as Partial<TraitPoints>),
+                oceTotal: addOCE(p.stats.oceTotal, result.oceScore),
+                selfReflectionTags: result.selfReflectionTag
+                  ? [...p.stats.selfReflectionTags, result.selfReflectionTag]
+                  : p.stats.selfReflectionTags,
               },
             }
           : p
@@ -233,16 +235,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const resetGame = useCallback(() => {
     setState({
       players: [], turnOrder: [], currentTurnIndex: 0,
-      gamePhase: "setup", questionHistory: [], totalTraitPoints: emptyTraits(),
+      gamePhase: "setup", questionHistory: [], oceTotal: EMPTY_OCE(),
       timeLimit: 60, gameStartTime: null,
     });
   }, []);
 
   return (
     <GameContext.Provider value={{
-      ...state, addPlayer, removePlayer, updatePlayer, setTurnOrder,
-      randomizeTurnOrder, setGamePhase, setTimeLimit, setGameStartTime, usePassToken,
-      nextTurn, prevTurn, getCurrentPlayer, recordAnswer, finishGame, resetGame,
+      ...state,
+      addPlayer, removePlayer, updatePlayer,
+      setTurnOrder, randomizeTurnOrder,
+      setGamePhase, setTimeLimit, setGameStartTime,
+      usePassToken, nextTurn, prevTurn, getCurrentPlayer,
+      recordTurnResult, finishGame, resetGame,
     }}>
       {children}
     </GameContext.Provider>

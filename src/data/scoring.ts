@@ -1,7 +1,10 @@
-import type { TraitPoints } from "@/context/GameContext";
-
 // ─── Score Thresholds (max 12) ────────────────────────────────────────────────
 // ต่ำ: 0-4 | ปานกลาง: 5-8 | สูง: 9-12
+
+// Legacy TraitPoints type kept for backward compat (not used in scoring anymore)
+export interface TraitPoints {
+  SE: number; COM: number; RES: number; ER: number;
+}
 
 export type ScoreLevel = "low" | "mid" | "high";
 

@@ -32,7 +32,7 @@ export default function FeedbackFAB() {
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(true)}
         sx={{
-          position: "fixed", bottom: 40, right: 40, zIndex: 50,
+          position: "fixed", bottom: 80, right: 40, zIndex: 50,
           bgcolor: "#1B7B7E", color: "white", px: 3, py: 1.5,
           borderRadius: "30px", display: "flex", alignItems: "center", gap: 1.5,
           boxShadow: "0 10px 25px rgba(27,123,126,0.4)", cursor: "pointer"
