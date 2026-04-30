@@ -32,7 +32,6 @@ export default function SetupPage() {
   const { players, addPlayer, removePlayer, setTurnOrder, setGamePhase, timeLimit, setTimeLimit } = useGame();
   const [name, setName] = useState("");
   const [role, setRole] = useState<PlayerRole>("parent");
-  const [ageGroup, setAgeGroup] = useState<AgeGroup>("ประถม");
   const [selectedChar, setSelectedChar] = useState(CHARACTERS[0].id);
   const [error, setError] = useState("");
 
@@ -40,7 +39,7 @@ export default function SetupPage() {
     const trimmed = name.trim();
     if (!trimmed) { setError("กรุณาใส่ชื่อผู้เล่น"); return; }
     if (players.length >= 5) { setError("ผู้เล่นเต็มแล้ว (สูงสุด 5 คน)"); return; }
-    addPlayer(trimmed, role, ageGroup, selectedChar);
+    addPlayer(trimmed, role, "ประถม", selectedChar);
     setName("");
     setError("");
   };
@@ -167,60 +166,7 @@ export default function SetupPage() {
               })}
             </Box>
 
-            {/* Age group */}
-            <Typography variant="body2" fontWeight={700} sx={{ color: "#5A4A36", mb: 1.25 }}>ช่วงวัย (ชุดการ์ด)</Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.25, mb: 3 }}>
-              {([
-                { value: "ประถม",  emoji: "🎒", label: "ประถม",   cardCount: 15, available: true  },
-                { value: "ม.ต้น",  emoji: "📚", label: "ม.ต้น",   cardCount: 15, available: false },
-                { value: "ม.ปลาย", emoji: "🎓", label: "ม.ปลาย", cardCount: 15, available: false },
-                { value: "ทั่วไป", emoji: "🌟", label: "ทั่วไป",  cardCount: 15, available: false },
-              ] as { value: AgeGroup; emoji: string; label: string; cardCount: number; available: boolean }[]).map((ag) => {
-                const isActive = ageGroup === ag.value;
-                return (
-                  <Box key={ag.value} component={motion.div}
-                    whileTap={ag.available ? { scale: 0.97 } : {}}
-                    onClick={() => ag.available && setAgeGroup(ag.value)}
-                    sx={{
-                      position: "relative", borderRadius: 3, p: 2,
-                      cursor: ag.available ? "pointer" : "not-allowed",
-                      opacity: ag.available ? 1 : 0.5,
-                      border: `2px solid ${isActive ? PRIMARY : "rgba(180,155,120,0.22)"}`,
-                      backgroundColor: isActive ? PRIMARY + "12" : "#FDFAF5",
-                      transition: "all 0.2s",
-                      boxShadow: isActive ? `0 4px 14px ${PRIMARY}30` : "none",
-                    }}>
-                    {!ag.available && (
-                      <Box sx={{
-                        position: "absolute", top: 6, right: 6,
-                        display: "flex", alignItems: "center", gap: 0.3,
-                        backgroundColor: "#F0EAE0", borderRadius: 1.5, px: 0.8, py: 0.2,
-                      }}>
-                        <LockRoundedIcon sx={{ fontSize: 9, color: "#B0A090" }} />
-                        <Typography sx={{ fontSize: "0.52rem", color: "#B0A090", fontWeight: 700 }}>เร็วๆ นี้</Typography>
-                      </Box>
-                    )}
-                    <Typography sx={{ fontSize: "1.5rem", lineHeight: 1, mb: 0.5 }}>{ag.emoji}</Typography>
-                    <Typography fontWeight={800} sx={{
-                      fontSize: "0.9rem",
-                      color: isActive ? PRIMARY : ag.available ? "#2C2218" : "#B0A090",
-                    }}>
-                      {ag.label}
-                    </Typography>
-                    <Box sx={{
-                      display: "inline-flex", alignItems: "center", mt: 0.5,
-                      backgroundColor: isActive ? PRIMARY + "18" : "#F0EAE0",
-                      borderRadius: 1.5, px: 0.8, py: 0.2,
-                    }}>
-                      <Typography sx={{ fontSize: "0.6rem", fontWeight: 700,
-                        color: isActive ? PRIMARY : "#9C8B76" }}>
-                        🃏 {ag.cardCount} การ์ด
-                      </Typography>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
+
 
             {/* Add button */}
             <Button variant="contained" fullWidth size="large"
@@ -274,7 +220,7 @@ export default function SetupPage() {
                         {player.name}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#9C8B76" }}>
-                        {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"} ({player.ageGroup})
+                        {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"}
                       </Typography>
                     </Box>
                     <Typography sx={{ fontWeight: 800, color: "#D1C4B4", mr: 0.5, fontSize: "0.85rem" }}>#{i + 1}</Typography>

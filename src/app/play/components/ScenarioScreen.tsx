@@ -9,10 +9,14 @@ const PRIMARY = "#5A7A65";
 interface Props {
   question: Question;
   char?: CharacterDef;
+  cardImageCode: string; // e.g. "P01", "PP01"
   onConfirm: () => void;
 }
 
-export default function ScenarioScreen({ question, char, onConfirm }: Props) {
+export default function ScenarioScreen({ question, char, cardImageCode, onConfirm }: Props) {
+  // e.g. "P" or "PP"
+  const prefix = cardImageCode.replace(/[0-9]/g, '');
+  const imagePath = `/cards/${prefix}/${cardImageCode}.png`;
   return (
     <motion.div key="scenario" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35 }}>
@@ -43,23 +47,39 @@ export default function ScenarioScreen({ question, char, onConfirm }: Props) {
       {/* Scenario box */}
       <Box sx={{
         backgroundColor: "#fff", borderRadius: 4, p: 3,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-        border: `2px solid ${PRIMARY}22`, mb: 2,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.05)",
+        border: "1px solid #E5E7EB", mb: 2,
       }}>
-        <Typography variant="caption" fontWeight={700} sx={{
-          color: PRIMARY, textTransform: "uppercase", letterSpacing: "0.08em",
-          display: "block", mb: 1.5,
-        }}>
-          📋 สถานการณ์
-        </Typography>
-        <Typography sx={{
-          fontSize: "1.05rem", fontWeight: 600, color: "#1F2937",
-          lineHeight: 1.8, mb: 2,
-        }}>
-          {question.text}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+          <Typography sx={{ fontSize: "1.1rem" }}>📋</Typography>
+          <Typography variant="body2" fontWeight={800} sx={{ color: "#374151", letterSpacing: "0.05em" }}>
+            สถานการณ์
+          </Typography>
+        </Box>
 
-        {/* Decorative mic */}
+        {/* Card Image Container */}
+        <Box sx={{
+          width: "100%", aspectRatio: "3/4", mb: 3,
+          borderRadius: 4, overflow: "hidden", 
+          backgroundColor: "#93C5FD", // Light blue background acting as border
+          p: 2, 
+          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+        }}>
+          <Box sx={{
+            position: "relative", width: "100%", height: "100%",
+            backgroundColor: "white", borderRadius: 2, overflow: "hidden",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={imagePath} 
+              alt={`การ์ด ${cardImageCode}`}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </Box>
+        </Box>
+
+      {/* Decorative mic */}
         <Box sx={{
           display: "flex", alignItems: "center", gap: 1,
           backgroundColor: "#F0FDF4", borderRadius: 3, px: 2, py: 1.25,

@@ -57,11 +57,28 @@ export default function PlayPage() {
 
   const handleCodeSubmit = useCallback(() => {
     if (!selectedNumberStr) { setInputError("กรุณาใส่หมายเลขการ์ด"); return; }
-    const code2 = selectedNumberStr.padStart(2, "0");
-    const pre = getCardPrefix();
-    let q = getQuestionByCode(`${pre}${code2}`);
-    if (!q && pre.length > 1) q = getQuestionByCode(`${pre[0]}${code2}`);
-    if (!q) { setInputError("ไม่พบรหัส " + pre + code2); return; }
+    
+    const match = selectedNumberStr.match(/^([a-zA-Z]+)(\d+)$/);
+    if (!match) { setInputError("รหัสไม่ถูกต้อง (ตัวอย่าง P01, PP01)"); return; }
+    
+    const prefix = match[1].toUpperCase();
+    const num = match[2].padStart(2, "0");
+    const fullCode = `${prefix}${num}`;
+    
+    setSelectedNumberStr(fullCode); // Ensure formatted
+
+    let q = getQuestionByCode(fullCode);
+    // If PP01 not found, try P01
+    if (!q && prefix.length > 1) {
+      q = getQuestionByCode(`${prefix[0]}${num}`);
+    }
+    // If L01 or U01 not found, fallback to P01 to avoid breaking
+    if (!q) {
+      q = getQuestionByCode(`P${num}`);
+    }
+
+    if (!q) { setInputError("ไม่พบรหัส " + fullCode); return; }
+    
     setCurrentQuestion(q);
     setInputError("");
     setPlayState("scenario");
@@ -156,7 +173,6 @@ export default function PlayPage() {
                 setSelectedNumberStr={setSelectedNumberStr}
                 inputError={inputError}
                 setInputError={setInputError}
-                cardPrefix={getCardPrefix()}
                 onSubmit={handleCodeSubmit}
                 onBack={() => { setSelectedNumberStr(""); setInputError(""); setPlayState("turn"); }}
               />
@@ -166,6 +182,7 @@ export default function PlayPage() {
                 key="scenario"
                 question={currentQuestion}
                 char={char}
+                cardImageCode={selectedNumberStr}
                 onConfirm={() => setPlayState("reflection")}
               />
             )}
