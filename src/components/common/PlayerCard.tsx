@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
+import GroupIcon from "@mui/icons-material/Group";
 import type { Player } from "@/context/GameContext";
 import { CHARACTERS } from "@/context/GameContext";
 
@@ -65,13 +66,13 @@ export default function PlayerCard({
           {player.name}
         </Typography>
         <Chip
-          icon={player.role === "parent" ? <PersonIcon /> : <ChildCareIcon />}
-          label={player.role === "parent" ? "ผู้ปกครอง" : "ลูก"}
+          icon={player.role === "parent" ? <PersonIcon /> : player.role === "child" ? <ChildCareIcon /> : <GroupIcon />}
+          label={player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"}
           size="small"
           sx={{
             mt: 0.5,
-            backgroundColor: player.role === "parent" ? "#E8F5E9" : "#FFF3E0",
-            color: player.role === "parent" ? "#2E7D32" : "#E65100",
+            backgroundColor: player.role === "parent" ? "#E8F5E9" : player.role === "child" ? "#FFF3E0" : "#F3E5F5",
+            color: player.role === "parent" ? "#2E7D32" : player.role === "child" ? "#E65100" : "#7B1FA2",
             fontWeight: 500, fontSize: "0.75rem", height: 24,
           }}
         />

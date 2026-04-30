@@ -63,10 +63,10 @@ export default function TurnStartScreen({
           border: `1px solid ${char?.baseColor ?? PRIMARY}30`,
         }}>
           <Typography sx={{ fontSize: "0.85rem" }}>
-            {currentPlayer.role === "parent" ? "👨‍👩‍👧" : "🧒"}
+            {currentPlayer.role === "parent" ? "👨‍👩‍👧" : currentPlayer.role === "child" ? "🧒" : "🧑‍🤝‍🧑"}
           </Typography>
           <Typography variant="body2" fontWeight={600} sx={{ color: char?.baseColor ?? PRIMARY }}>
-            {currentPlayer.role === "parent" ? "ผู้ปกครอง" : "ลูก"}
+            {currentPlayer.role === "parent" ? "ผู้ปกครอง" : currentPlayer.role === "child" ? "ลูก" : "เพื่อน"}
           </Typography>
         </Box>
       </Box>

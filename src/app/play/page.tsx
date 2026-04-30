@@ -45,6 +45,7 @@ export default function PlayPage() {
     if (!currentPlayer) return "U";
     const map: Record<string, string> = { "ประถม": "P", "ม.ต้น": "M", "ม.ปลาย": "L", "ทั่วไป": "U" };
     const p = map[currentPlayer.ageGroup] || "U";
+    // child uses single prefix (P), parent/friend uses double (PP)
     return currentPlayer.role === "child" ? p : `${p}${p}`;
   }, [currentPlayer]);
 
@@ -70,11 +71,10 @@ export default function PlayPage() {
     if (!currentPlayer || !currentQuestion) return;
     recordTurnResult({
       questionCode: currentQuestion.code,
-      playerId: currentPlayer.id,
+      playerId:     currentPlayer.id,
       selfReflectionTag: selectedTag,
       oceScore,
     });
-    // Reset and go back to TurnStartScreen for next player
     setPlayState("turn");
     setSelectedNumberStr("");
     setCurrentQuestion(null);

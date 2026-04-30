@@ -37,7 +37,7 @@ export const OCE_META = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type PlayerRole = "parent" | "child";
+export type PlayerRole = "parent" | "child" | "friend";
 export type AgeGroup   = "ประถม" | "ม.ต้น" | "ม.ปลาย" | "ทั่วไป";
 
 export interface Player {
@@ -56,9 +56,9 @@ export interface Player {
 
 export interface QuestionResult {
   questionCode: string;
-  playerId: string;
+  playerId:     string;
   selfReflectionTag: string | null;
-  oceScore: OCEScore;             // peer scores for this turn
+  oceScore:     OCEScore;         // peer scores for this turn
 }
 
 export type GamePhase = "setup" | "ordering" | "playing" | "finished";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box, Typography, Button, Container, InputBase,
   Alert,
@@ -20,6 +20,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import TimerRoundedIcon from "@mui/icons-material/TimerRounded";
 import GroupIcon from '@mui/icons-material/Group';
+import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 
 const BG      = "#FAF5EC";
 const PRIMARY = "#4E7B5E";
@@ -74,7 +75,7 @@ export default function SetupPage() {
               ตั้งค่าผู้เล่น
             </Typography>
             <Typography variant="body2" sx={{ color: "#7A6248", mt: 0.5 }}>
-              เพิ่มผู้เล่น 2–5 คน พร้อมเลือกตัวละครและบทบาท
+              เพิ่มผู้เล่น 2–5 คน และเลือกตัวละครและบทบาท (ผู้ปกครอง / ลูก / เพื่อน)
             </Typography>
           </Box>
 
@@ -139,26 +140,27 @@ export default function SetupPage() {
 
             {/* Role */}
             <Typography variant="body2" fontWeight={700} sx={{ color: "#5A4A36", mb: 1.25 }}>บทบาท</Typography>
-            <Box sx={{ display: "flex", gap: 1.5, mb: 2.5 }}>
-              {(["parent", "child"] as PlayerRole[]).map((r) => {
-                const isActive = role === r;
-                const cfg = r === "parent"
-                  ? { label: "ผู้ปกครอง", Icon: PersonRoundedIcon, color: PRIMARY }
-                  : { label: "ลูก", Icon: ChildCareRoundedIcon, color: ACCENT };
+            <Box sx={{ display: "flex", gap: 1.5, mb: 2.5, flexWrap: "wrap" }}>
+              {([
+                { value: "parent", label: "ผู้ปกครอง", Icon: PersonRoundedIcon,   color: PRIMARY },
+                { value: "child",  label: "ลูก",        Icon: ChildCareRoundedIcon, color: ACCENT },
+                { value: "friend", label: "เพื่อน",       Icon: GroupsRoundedIcon,   color: "#7C5CBF" },
+              ] as { value: PlayerRole; label: string; Icon: React.ElementType; color: string }[]).map((r) => {
+                const isActive = role === r.value;
                 return (
-                  <Box key={r} onClick={() => setRole(r)}
+                  <Box key={r.value} onClick={() => setRole(r.value)}
                     component={motion.div} whileTap={{ scale: 0.96 }}
                     sx={{
-                      flex: 1, py: 1.4, borderRadius: 3, cursor: "pointer", textAlign: "center",
+                      flex: 1, minWidth: 80, py: 1.4, borderRadius: 3, cursor: "pointer", textAlign: "center",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75,
-                      backgroundColor: isActive ? cfg.color + "14" : "#FDFAF5",
-                      border: `2px solid ${isActive ? cfg.color : "rgba(180,155,120,0.25)"}`,
+                      backgroundColor: isActive ? r.color + "14" : "#FDFAF5",
+                      border: `2px solid ${isActive ? r.color : "rgba(180,155,120,0.25)"}`,
                       transition: "all 0.18s",
                     }}>
-                    <cfg.Icon sx={{ color: isActive ? cfg.color : "#B0A090", fontSize: "1.1rem" }} />
+                    <r.Icon sx={{ color: isActive ? r.color : "#B0A090", fontSize: "1.1rem" }} />
                     <Typography fontWeight={700}
-                      sx={{ color: isActive ? cfg.color : "#9C8B76", fontSize: "0.9rem" }}>
-                      {cfg.label}
+                      sx={{ color: isActive ? r.color : "#9C8B76", fontSize: "0.9rem" }}>
+                      {r.label}
                     </Typography>
                   </Box>
                 );
@@ -272,7 +274,7 @@ export default function SetupPage() {
                         {player.name}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#9C8B76" }}>
-                        {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"} ({player.ageGroup})
+                        {char?.name} · {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"} ({player.ageGroup})
                       </Typography>
                     </Box>
                     <Typography sx={{ fontWeight: 800, color: "#D1C4B4", mr: 0.5, fontSize: "0.85rem" }}>#{i + 1}</Typography>

@@ -106,7 +106,7 @@ export default function SummaryPage() {
                           {player.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"} · {turns} เทิร์น
+                          {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"} · {turns} เทิร์น
                         </Typography>
                         {topMeta && (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>

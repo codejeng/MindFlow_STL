@@ -12,6 +12,7 @@ import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import DragIndicatorRoundedIcon from "@mui/icons-material/DragIndicatorRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
+import GroupIcon from "@mui/icons-material/Group";
 
 export default function OrderPage() {
   const router = useRouter();
@@ -102,12 +103,12 @@ export default function OrderPage() {
                     </Typography>
                     <Box sx={{
                       display: "inline-flex", alignItems: "center", gap: 0.5,
-                      backgroundColor: player.role === "parent" ? "#E8F5E9" : "#FFF3E0",
-                      color: player.role === "parent" ? "#2E7D32" : "#E65100",
+                      backgroundColor: player.role === "parent" ? "#E8F5E9" : player.role === "child" ? "#FFF3E0" : "#F3E5F5",
+                      color: player.role === "parent" ? "#2E7D32" : player.role === "child" ? "#E65100" : "#7B1FA2",
                       borderRadius: 1.5, px: 1, py: 0.25, fontSize: "0.75rem", fontWeight: 500,
                     }}>
-                      {player.role === "parent" ? <PersonIcon sx={{ fontSize: 14 }} /> : <ChildCareIcon sx={{ fontSize: 14 }} />}
-                      {player.role === "parent" ? "ผู้ปกครอง" : "ลูก"}
+                      {player.role === "parent" ? <PersonIcon sx={{ fontSize: 14 }} /> : player.role === "child" ? <ChildCareIcon sx={{ fontSize: 14 }} /> : <GroupIcon sx={{ fontSize: 14 }} />}
+                      {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"}
                     </Box>
                   </Box>
                 </Box>

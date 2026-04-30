@@ -67,7 +67,7 @@ export default function ScenarioScreen({ question, char, onConfirm }: Props) {
         }}>
           <Typography sx={{ fontSize: "1.3rem" }}>🎙️</Typography>
           <Typography variant="body2" sx={{ color: "#166534", fontWeight: 500 }}>
-            อ่านสถานการณ์นี้ให้เพื่อนฟัง แล้วพูดคำตอบของคุณ
+            อ่านสถานการณ์นี้ให้เพื่อนฟัง และแชร์สิ่งที่คุณจะทำในสถานการณ์นี้
           </Typography>
         </Box>
       </Box>
