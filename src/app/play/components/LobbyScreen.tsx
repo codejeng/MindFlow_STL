@@ -1,17 +1,16 @@
 "use client";
 import { Box, Typography, Button } from "@mui/material";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import type { CharacterDef } from "@/context/GameContext";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import BackspaceRoundedIcon from "@mui/icons-material/BackspaceRounded";
 
 const BG_CARD = "#FFFFFF";
-const PRIMARY = "#5A7A65";
-const NUM_BG  = "#F5EDE0";
+const PRIMARY = "#4E7B5E";
 
 interface Props {
-  char?: CharacterDef;
-  playerName: string;
-  selectedNumberStr: string; // Now acts as full card code
+  channelName: string;
+  prefix: string;
+  selectedNumberStr: string;
   setSelectedNumberStr: (v: string | ((p: string) => string)) => void;
   inputError: string;
   setInputError: (v: string) => void;
@@ -20,143 +19,140 @@ interface Props {
 }
 
 export default function LobbyScreen({
-  char, playerName, selectedNumberStr, setSelectedNumberStr,
+  channelName, prefix, selectedNumberStr, setSelectedNumberStr,
   inputError, setInputError, onSubmit, onBack,
 }: Props) {
   const handleKey = (key: string) => {
-    // Only allow max 4 characters (e.g. PP01)
-    if (selectedNumberStr.length >= 4) return;
+    if (selectedNumberStr.length >= 3) return; // allow exactly 3 digits
     setSelectedNumberStr((p: string) => p + key);
     setInputError("");
   };
 
   const handleDel = () => {
-    setSelectedNumberStr((p: string) => {
-      // If ends with PP, LL, UU we should probably delete the whole prefix?
-      // Simple char-by-char deletion is fine for now, or just slice
-      return p.slice(0, -1);
-    });
+    setSelectedNumberStr((p: string) => p.slice(0, -1));
     setInputError("");
   };
+
+  const codeChars = (prefix + selectedNumberStr).split("");
+  const totalSlots = prefix.length + 3;
+  
+  // Pad with empty strings
+  while (codeChars.length < totalSlots) {
+    codeChars.push("");
+  }
 
   return (
     <motion.div key="lobby" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.35 }}>
 
-      {/* Back button */}
-      <Box sx={{ mb: 2 }}>
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
         <Button
-          size="small"
           onClick={onBack}
-          startIcon={<span style={{ fontSize: "1rem" }}>←</span>}
-          sx={{
-            color: "#6B7280", fontWeight: 600, textTransform: "none",
-            borderRadius: 3, px: 1.5,
-            "&:hover": { backgroundColor: "#F3F4F6" },
-          }}
+          sx={{ minWidth: 0, p: 1, color: "#7A6248", borderRadius: 3 }}
         >
-          ย้อนกลับ
+          <ArrowBackRoundedIcon />
         </Button>
-      </Box>
-
-      <Box sx={{ textAlign: "center", mb: 2 }}>
-        {char && (
-          <Box sx={{ width: 72, height: 90, mx: "auto", position: "relative", mb: 1 }}>
-            <Image src={char.image} alt={char.name} fill style={{ objectFit: "contain" }} />
-          </Box>
-        )}
-        <Typography fontWeight={700} sx={{ color: char?.baseColor ?? PRIMARY, fontSize: "1.1rem" }}>
-          {playerName}
+        <Typography fontWeight={800} sx={{ flex: 1, textAlign: "center", color: "#3D8B5E", fontSize: "0.85rem", letterSpacing: "0.05em", mr: 4 }}>
+          6. ใส่รหัสการ์ด
         </Typography>
-        <Typography variant="body2" color="text.secondary">กรอกรหัสการ์ดที่จั่วได้</Typography>
       </Box>
 
-      {/* Display */}
+      {/* Card Input Area */}
       <Box sx={{
-        backgroundColor: BG_CARD, borderRadius: 4, p: 3,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.07)", mb: 2, textAlign: "center",
+        backgroundColor: BG_CARD, borderRadius: 2, p: 4,
+        boxShadow: "0 4px 24px rgba(100,70,30,0.09)", mb: 2, textAlign: "center",
+        border: "1px solid rgba(180,155,120,0.18)",
       }}>
-        <Typography variant="caption" sx={{ color: "#9CA3AF", mb: 1, display: "block" }}>
-          รหัสการ์ด
+        <Typography fontWeight={900} sx={{ color: "#2C2218", fontSize: "1.4rem", mb: 1 }}>
+          {channelName}
         </Typography>
-        <Box sx={{
-          backgroundColor: NUM_BG, borderRadius: 3, py: 2, mb: 3,
-          border: selectedNumberStr ? `2px solid ${PRIMARY}` : "2px solid #E5D5C5",
-        }}>
-          <Typography fontWeight={800} sx={{
-            fontSize: "2.5rem", letterSpacing: "0.15em",
-            color: selectedNumberStr ? "#2D3748" : "#CBD5E0",
-          }}>
-            {selectedNumberStr || "____"}
-          </Typography>
+        <Typography variant="body2" sx={{ color: "#7A6248", mb: 4 }}>
+          กรอกรหัสการ์ดที่คุณจั่วได้
+        </Typography>
+
+        {/* Number Boxes */}
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1.5, mb: 3 }}>
+          {codeChars.map((char, i) => {
+            const isPrefix = i < prefix.length;
+            return (
+              <Box
+                key={i}
+                sx={{
+                  width: 50, height: 60,
+                  backgroundColor: char ? "#FFFFFF" : "#F9F5F0",
+                  borderRadius: 3,
+                  border: char ? `2px solid ${PRIMARY}` : "2px solid #EDE3D8",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: char ? `0 4px 12px ${PRIMARY}20` : "none",
+                }}
+              >
+                <Typography fontWeight={800} sx={{ fontSize: "1.8rem", color: isPrefix ? PRIMARY : "#2C2218" }}>
+                  {char}
+                </Typography>
+              </Box>
+            );
+          })}
         </Box>
 
-        {/* Custom Numpad */}
-        <Box sx={{ maxWidth: 300, mx: "auto", mb: 2 }}>
-          {/* Prefix Keys */}
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, mb: 1 }}>
-            {["P", "L", "U"].map((n) => (
-              <NumKey key={n} label={n} onClick={() => handleKey(n)} accent />
-            ))}
-          </Box>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, mb: 2 }}>
-            {["PP", "LL", "UU"].map((n) => (
-              <NumKey key={n} label={n} onClick={() => handleKey(n)} accent />
-            ))}
-          </Box>
-          
-          {/* Number Keys */}
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, mb: 1 }}>
+        <Typography variant="caption" sx={{ color: "#B0A090", mb: 4, display: "block" }}>
+          เช่น P024, F015, S030, U012
+        </Typography>
+
+        {/* Numpad */}
+        <Box sx={{ maxWidth: 280, mx: "auto", mb: 3 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1.5, mb: 1.5 }}>
             {["1","2","3"].map((n) => <NumKey key={n} label={n} onClick={() => handleKey(n)} />)}
           </Box>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, mb: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1.5, mb: 1.5 }}>
             {["4","5","6"].map((n) => <NumKey key={n} label={n} onClick={() => handleKey(n)} />)}
           </Box>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, mb: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1.5, mb: 1.5 }}>
             {["7","8","9"].map((n) => <NumKey key={n} label={n} onClick={() => handleKey(n)} />)}
           </Box>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1.5 }}>
             <Box />
             <NumKey label="0" onClick={() => handleKey("0")} />
-            <NumKey label="⌫" onClick={handleDel} deleteKey />
+            <NumKey icon={<BackspaceRoundedIcon fontSize="small" />} onClick={handleDel} deleteKey />
           </Box>
         </Box>
 
         {inputError && (
-          <Typography variant="caption" sx={{ color: "#EF4444", display: "block", mb: 1 }}>
+          <Typography variant="caption" sx={{ color: "#DC2626", display: "block", mb: 2, fontWeight: 600 }}>
             {inputError}
           </Typography>
         )}
 
-        <Button variant="contained" fullWidth disabled={!selectedNumberStr} onClick={onSubmit}
+        <Button variant="contained" fullWidth disabled={selectedNumberStr.length !== 3} onClick={onSubmit}
+          component={motion.button} whileTap={{ scale: 0.97 }}
           sx={{
-            py: 1.75, borderRadius: 3, fontWeight: 700, fontSize: "1rem", mt: 2,
+            py: 1.85, borderRadius: 4, fontWeight: 800, fontSize: "1.1rem",
             background: `linear-gradient(135deg, ${PRIMARY}, #7AA880)`,
-            boxShadow: `0 4px 16px ${PRIMARY}40`,
-            "&:disabled": { backgroundColor: "#D1D5DB", color: "#9CA3AF" },
+            boxShadow: `0 6px 20px ${PRIMARY}40`,
+            textTransform: "none",
+            "&:disabled": { backgroundColor: "#E5E7EB", color: "#9CA3AF", boxShadow: "none", background: "#E5E7EB" },
           }}>
-          ถัดไป →
+          ถัดไป
         </Button>
       </Box>
     </motion.div>
   );
 }
 
-function NumKey({ label, onClick, accent, deleteKey }: { label: string; onClick: () => void; accent?: boolean; deleteKey?: boolean }) {
+function NumKey({ label, icon, onClick, deleteKey }: { label?: string; icon?: React.ReactNode; onClick: () => void; deleteKey?: boolean }) {
   return (
     <Box component={motion.div} whileTap={{ scale: 0.92 }} onClick={onClick}
       sx={{
-        py: accent ? 1.2 : 1.5, borderRadius: 3, cursor: "pointer", userSelect: "none",
-        backgroundColor: accent ? "#E5F0E9" : deleteKey ? "#FEF2F2" : "#F9F5F0",
-        border: accent ? "1px solid #C0D8C8" : deleteKey ? "1px solid #FCA5A5" : "1px solid #EDE3D8",
+        height: 56, borderRadius: 3, cursor: "pointer", userSelect: "none",
+        backgroundColor: deleteKey ? "#FEF2F2" : "#FFFFFF",
+        border: deleteKey ? "1px solid #FCA5A5" : "1px solid #EDE3D8",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         display: "flex", justifyContent: "center", alignItems: "center",
       }}>
-      <Typography fontWeight={700} sx={{ 
-        fontSize: accent ? "1.1rem" : "1.3rem", 
-        color: accent ? "#3D5A45" : deleteKey ? "#DC2626" : "#4A5568" 
-      }}>
+      <Typography fontWeight={700} sx={{ fontSize: "1.4rem", color: deleteKey ? "#DC2626" : "#2C2218" }}>
         {label}
       </Typography>
+      {icon && <Box sx={{ color: "#DC2626", display: "flex", mt: 0.5 }}>{icon}</Box>}
     </Box>
   );
 }

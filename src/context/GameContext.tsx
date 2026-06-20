@@ -39,6 +39,41 @@ export const OCE_META = {
 
 export type PlayerRole = "parent" | "child" | "friend";
 export type AgeGroup   = "ประถม" | "ม.ต้น" | "ม.ปลาย" | "ทั่วไป";
+export type DeckCategory = "family" | "primary" | "secondary" | "university";
+export type MissionType = "life-event" | "challenge" | "good-moments" | "pass-the-heart" | "coin";
+
+// ─── Mission Types ────────────────────────────────────────────────────────────
+
+export interface MissionGoalProgress {
+  type: MissionType;
+  target: number;
+  progress: number;
+}
+
+export interface PlayerMission {
+  missionId: string;
+  label: string;
+  goals: MissionGoalProgress[];
+}
+
+// ─── Channel Play Record ──────────────────────────────────────────────────────
+
+export interface ChannelPlayRecord {
+  playerId: string;
+  channel: string;
+  turnIndex: number;
+  questionCode?: string;
+  success?: boolean;         // for challenge: did it succeed?
+  targetPlayerId?: string;   // for pass-the-heart: who was chosen?
+}
+
+import { JohariQuadrant } from "@/data/adaptationGuides";
+
+export interface JohariResults {
+  openness: JohariQuadrant;
+  empathy: JohariQuadrant;
+  selfClarity: JohariQuadrant;
+}
 
 export interface Player {
   id: string;
@@ -46,12 +81,18 @@ export interface Player {
   role: PlayerRole;
   ageGroup: AgeGroup;
   characterId: string;
+  missions: PlayerMission[];     // 3 missions assigned at game start
+  doorUnlocked: boolean;         // true when all missions completed at Mission Gate
+  heartCoins: number;            // tracked for display/dashboard
   stats: {
     questionsAnswered: number;
     oceTotal: OCEScore;           // running total of peer-given scores
     selfReflectionTags: string[]; // tags selected each turn
     passTokens: number;
   };
+  peerCoins?: OCEScore;
+  johariResults?: JohariResults;
+  contextTag?: string;
 }
 
 export interface QuestionResult {
@@ -69,9 +110,11 @@ interface GameState {
   currentTurnIndex: number;
   gamePhase:        GamePhase;
   questionHistory:  QuestionResult[];
+  channelHistory:   ChannelPlayRecord[];  // tracks every channel play
   oceTotal:         OCEScore;   // aggregate across all players/turns
   timeLimit:        number;     // minutes
   gameStartTime:    number | null;
+  selectedDeck:     DeckCategory | null;
 }
 
 interface GameContextType extends GameState {
@@ -83,6 +126,7 @@ interface GameContextType extends GameState {
   setGamePhase:      (phase: GamePhase) => void;
   setTimeLimit:      (minutes: number) => void;
   setGameStartTime:  (time: number) => void;
+  setSelectedDeck:   (deck: DeckCategory) => void;
   usePassToken:      (playerId: string) => void;
   nextTurn:          () => void;
   prevTurn:          () => void;
@@ -90,6 +134,18 @@ interface GameContextType extends GameState {
   recordTurnResult:  (result: QuestionResult) => void;
   finishGame:        () => void;
   resetGame:         () => void;
+  // ── Mission system ──
+  assignMissions:        (playerId: string, missions: PlayerMission[]) => void;
+  updateMissionProgress: (playerId: string, missionType: MissionType, delta?: number) => void;
+  addHeartCoins:         (playerId: string, amount: number) => void;
+  addHeartCoinsToAll:    (amount: number) => void;
+  unlockDoor:            (playerId: string) => void;
+  areAllDoorsUnlocked:   () => boolean;
+  getPlayerMissions:     (playerId: string) => PlayerMission[];
+  checkAllMissionsComplete: (playerId: string) => boolean;
+  recordChannelPlay:     (record: ChannelPlayRecord) => void;
+  // ── Johari ──
+  setPlayerJohariData:   (playerId: string, peerCoins: OCEScore, contextTag: string, johariResults: JohariResults) => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -119,9 +175,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     currentTurnIndex: 0,
     gamePhase:        "setup",
     questionHistory:  [],
+    channelHistory:   [],
     oceTotal:         EMPTY_OCE(),
     timeLimit:        60,
     gameStartTime:    null,
+    selectedDeck:     null,
   });
 
   const addPlayer = useCallback((name: string, role: PlayerRole, ageGroup: AgeGroup, characterId: string) => {
@@ -132,6 +190,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         id: `player-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         name, role, ageGroup,
         characterId: char.id,
+        missions: [],
+        doorUnlocked: false,
+        heartCoins: 0,
         stats: {
           questionsAnswered: 0,
           oceTotal: EMPTY_OCE(),
@@ -170,9 +231,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setGamePhase    = useCallback((phase: GamePhase) => setState((prev) => ({ ...prev, gamePhase: phase })), []);
-  const setTimeLimit    = useCallback((minutes: number) => setState((prev) => ({ ...prev, timeLimit: minutes })), []);
-  const setGameStartTime = useCallback((time: number)   => setState((prev) => ({ ...prev, gameStartTime: time })), []);
+  const setGamePhase    = useCallback((phase: GamePhase)    => setState((prev) => ({ ...prev, gamePhase: phase })), []);
+  const setTimeLimit    = useCallback((minutes: number)     => setState((prev) => ({ ...prev, timeLimit: minutes })), []);
+  const setGameStartTime = useCallback((time: number)       => setState((prev) => ({ ...prev, gameStartTime: time })), []);
+  const setSelectedDeck  = useCallback((deck: DeckCategory) => setState((prev) => ({ ...prev, selectedDeck: deck })), []);
 
   const usePassToken = useCallback((playerId: string) => {
     setState((prev) => ({
@@ -235,9 +297,122 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const resetGame = useCallback(() => {
     setState({
       players: [], turnOrder: [], currentTurnIndex: 0,
-      gamePhase: "setup", questionHistory: [], oceTotal: EMPTY_OCE(),
-      timeLimit: 60, gameStartTime: null,
+      gamePhase: "setup", questionHistory: [], channelHistory: [],
+      oceTotal: EMPTY_OCE(),
+      timeLimit: 60, gameStartTime: null, selectedDeck: null,
     });
+  }, []);
+
+  // ── Mission System Functions ──────────────────────────────────────────────
+
+  const assignMissions = useCallback((playerId: string, missions: PlayerMission[]) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.id === playerId ? { ...p, missions } : p
+      ),
+    }));
+  }, []);
+
+  const updateMissionProgress = useCallback((playerId: string, missionType: MissionType, delta: number = 1) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => {
+        if (p.id !== playerId) return p;
+        return {
+          ...p,
+          missions: p.missions.map((m) => ({
+            ...m,
+            goals: m.goals.map((g) =>
+              g.type === missionType
+                ? { ...g, progress: Math.max(0, g.progress + delta) }
+                : g
+            ),
+          })),
+        };
+      }),
+    }));
+  }, []);
+
+  const addHeartCoins = useCallback((playerId: string, amount: number) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => {
+        if (p.id !== playerId) return p;
+        const newCoins = Math.max(0, p.heartCoins + amount);
+        return {
+          ...p,
+          heartCoins: newCoins,
+          missions: p.missions.map((m) => ({
+            ...m,
+            goals: m.goals.map((g) =>
+              g.type === "coin" ? { ...g, progress: newCoins } : g
+            ),
+          })),
+        };
+      }),
+    }));
+  }, []);
+
+  const addHeartCoinsToAll = useCallback((amount: number) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => {
+        const newCoins = Math.max(0, p.heartCoins + amount);
+        return {
+          ...p,
+          heartCoins: newCoins,
+          missions: p.missions.map((m) => ({
+            ...m,
+            goals: m.goals.map((g) =>
+              g.type === "coin" ? { ...g, progress: newCoins } : g
+            ),
+          })),
+        };
+      }),
+    }));
+  }, []);
+
+  const unlockDoor = useCallback((playerId: string) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.id === playerId ? { ...p, doorUnlocked: true } : p
+      ),
+    }));
+  }, []);
+
+  const areAllDoorsUnlocked = useCallback((): boolean => {
+    return state.players.length > 0 && state.players.some((p) => p.doorUnlocked);
+  }, [state.players]);
+
+  const getPlayerMissions = useCallback((playerId: string): PlayerMission[] => {
+    const player = state.players.find((p) => p.id === playerId);
+    return player?.missions ?? [];
+  }, [state.players]);
+
+  const checkAllMissionsComplete = useCallback((playerId: string): boolean => {
+    const player = state.players.find((p) => p.id === playerId);
+    if (!player || player.missions.length === 0) return false;
+    return player.missions.every((m) =>
+      m.goals.every((g) => g.progress >= g.target)
+    );
+  }, [state.players]);
+
+  const recordChannelPlay = useCallback((record: ChannelPlayRecord) => {
+    setState((prev) => ({
+      ...prev,
+      channelHistory: [...prev.channelHistory, record],
+    }));
+  }, []);
+
+  const setPlayerJohariData = useCallback((playerId: string, peerCoins: OCEScore, contextTag: string, johariResults: JohariResults) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.id === playerId ? { ...p, peerCoins, contextTag, johariResults } : p
+      ),
+    }));
   }, []);
 
   return (
@@ -245,9 +420,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       ...state,
       addPlayer, removePlayer, updatePlayer,
       setTurnOrder, randomizeTurnOrder,
-      setGamePhase, setTimeLimit, setGameStartTime,
+      setGamePhase, setTimeLimit, setGameStartTime, setSelectedDeck,
       usePassToken, nextTurn, prevTurn, getCurrentPlayer,
       recordTurnResult, finishGame, resetGame,
+      assignMissions, updateMissionProgress,
+      addHeartCoins, addHeartCoinsToAll,
+      unlockDoor, areAllDoorsUnlocked,
+      getPlayerMissions, checkAllMissionsComplete,
+      recordChannelPlay,
+      setPlayerJohariData,
     }}>
       {children}
     </GameContext.Provider>

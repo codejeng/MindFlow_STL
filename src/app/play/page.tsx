@@ -4,39 +4,68 @@ import { useState, useCallback } from "react";
 import { Box, Typography, Button, Container, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useGame, CHARACTERS, EMPTY_OCE, type OCEScore } from "@/context/GameContext";
+import { useGame, CHARACTERS, EMPTY_OCE, type OCEScore, type MissionType } from "@/context/GameContext";
 import { getQuestionByCode } from "@/data/questions";
 import type { Question } from "@/data/questions";
 import GlobalTimer from "@/components/common/GlobalTimer";
 import PageTransition from "@/components/common/PageTransition";
+import CSSParticles from "@/components/common/CSSParticles";
 import TurnStartScreen from "./components/TurnStartScreen";
 import LobbyScreen from "./components/LobbyScreen";
 import ScenarioScreen from "./components/ScenarioScreen";
 import ReflectionScreen from "./components/ReflectionScreen";
 import WaitingScreen from "./components/WaitingScreen";
 import ScoreScreen from "./components/ScoreScreen";
-import TurnSummaryScreen from "./components/TurnSummaryScreen";
+import SavedSuccessScreen from "./components/SavedSuccessScreen";
+import MissionGateProgressScreen from "./components/MissionGateProgressScreen";
+import MissionGateUnlockScreen from "./components/MissionGateUnlockScreen";
+import MissionUpdateScreen from "./components/MissionUpdateScreen";
+import OpinionScreen from "./components/OpinionScreen";
+import PassTheHeartActionScreen from "./components/PassTheHeartActionScreen";
+import HeartGateWaitingScreen from "./components/HeartGateWaitingScreen";
+import HeartGateReadyScreen from "./components/HeartGateReadyScreen";
+import FinalReflectionScreen from "./components/FinalReflectionScreen";
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 
-type PlayState = "turn" | "lobby" | "scenario" | "reflection" | "waiting" | "score" | "summary";
+type PlayState =
+  | "turn" | "lobby" | "scenario" | "opinion" | "reflection" | "waiting" | "score" | "saved"
+  | "pass_the_heart_action" | "mission_update"
+  | "mission_gate_progress" | "mission_gate_unlock" | "mission_gate_not_ready"
+  | "heart_gate_waiting" | "heart_gate_ready" | "final_reflection";
 
 const BG = "#FDF6EE";
 const PRIMARY = "#5A7A65";
+
+// Map channel IDs to mission types for tracking
+const CHANNEL_TO_MISSION: Record<string, MissionType> = {
+  "life-event": "life-event",
+  "good-moments": "good-moments",
+  "challenge-moments": "challenge",
+  "pass-the-heart": "pass-the-heart",
+};
 
 export default function PlayPage() {
   const router = useRouter();
   const {
     players, turnOrder, currentTurnIndex,
     nextTurn, getCurrentPlayer, recordTurnResult, finishGame,
+    updateMissionProgress, addHeartCoins, addHeartCoinsToAll,
+    randomizeTurnOrder,
+    areAllDoorsUnlocked,
+    recordChannelPlay,
   } = useGame();
 
   const [playState, setPlayState]         = useState<PlayState>("turn");
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedNumberStr, setSelectedNumberStr] = useState("");
   const [inputError, setInputError]       = useState("");
   const [selectedTag, setSelectedTag]     = useState<string | null>(null);
   const [oceScore, setOceScore]           = useState<OCEScore>(EMPTY_OCE());
   const [confirmFinish, setConfirmFinish] = useState(false);
+  const [finalReflectIndex, setFinalReflectIndex] = useState(0);
+  const [targetUpdatePlayerId, setTargetUpdatePlayerId] = useState<string | null>(null);
+  const [earnedCoins, setEarnedCoins] = useState(0);
 
   const currentPlayer = getCurrentPlayer();
   const char = CHARACTERS.find((c) => c.id === currentPlayer?.characterId);
@@ -45,66 +74,195 @@ export default function PlayPage() {
     if (!currentPlayer) return "U";
     const map: Record<string, string> = { "ประถม": "P", "ม.ต้น": "M", "ม.ปลาย": "L", "ทั่วไป": "U" };
     const p = map[currentPlayer.ageGroup] || "U";
-    // child uses single prefix (P), parent/friend uses double (PP)
     return currentPlayer.role === "child" ? p : `${p}${p}`;
   }, [currentPlayer]);
 
-  // Skip turn — player didn't land on card space
-  const handleSkipTurn = useCallback(() => {
-    nextTurn();
-    // state stays "turn" so next player sees TurnStartScreen
-  }, [nextTurn]);
+  // Get the appropriate code prefix for non-life-event channels
+  const getChannelCodePrefix = useCallback((channelId: string) => {
+    switch (channelId) {
+      case "good-moments": return "GM";
+      case "challenge-moments": return "CH";
+      case "pass-the-heart": return "PH";
+      default: return getCardPrefix(); // life-event uses player prefix
+    }
+  }, [getCardPrefix]);
+
+  // Player selected a channel
+  const handleSelectChannel = useCallback((channelId: string) => {
+    setSelectedChannel(channelId);
+    const ch = channelId;
+    if (ch === "mission-gate") {
+      setPlayState("mission_gate_progress");
+    } else {
+      // All channels go through lobby for card code entry
+      setPlayState("lobby");
+    }
+  }, [players, currentPlayer]);
 
   const handleCodeSubmit = useCallback(() => {
-    if (!selectedNumberStr) { setInputError("กรุณาใส่หมายเลขการ์ด"); return; }
-    
-    const match = selectedNumberStr.match(/^([a-zA-Z]+)(\d+)$/);
-    if (!match) { setInputError("รหัสไม่ถูกต้อง (ตัวอย่าง P01, PP01)"); return; }
-    
-    const prefix = match[1].toUpperCase();
-    const num = match[2].padStart(2, "0");
-    const fullCode = `${prefix}${num}`;
-    
-    setSelectedNumberStr(fullCode); // Ensure formatted
+    if (!selectedNumberStr || selectedNumberStr.length !== 3) {
+      setInputError("กรุณาใส่ตัวเลข 3 หลัก");
+      return;
+    }
+
+    const isLifeEvent = selectedChannel === "life-event";
+    const prefix = isLifeEvent ? getCardPrefix() : getChannelCodePrefix(selectedChannel ?? "");
+    const fullCode = `${prefix}${selectedNumberStr}`;
 
     let q = getQuestionByCode(fullCode);
-    // If PP01 not found, try P01
-    if (!q && prefix.length > 1) {
-      q = getQuestionByCode(`${prefix[0]}${num}`);
-    }
-    // If L01 or U01 not found, fallback to P01 to avoid breaking
-    if (!q) {
-      q = getQuestionByCode(`P${num}`);
+
+    // Fallback for life-event codes
+    if (!q && isLifeEvent) {
+      if (prefix.length > 1) {
+        q = getQuestionByCode(`${prefix[0]}${selectedNumberStr}`);
+      }
+      if (!q) {
+        q = getQuestionByCode(`P${selectedNumberStr}`);
+      }
     }
 
     if (!q) { setInputError("ไม่พบรหัส " + fullCode); return; }
-    
+
     setCurrentQuestion(q);
     setInputError("");
     setPlayState("scenario");
-  }, [selectedNumberStr, getCardPrefix]);
+  }, [selectedNumberStr, selectedChannel, getCardPrefix, getChannelCodePrefix]);
 
-  const handleFinishTurn = useCallback(() => {
-    if (!currentPlayer || !currentQuestion) return;
-    recordTurnResult({
-      questionCode: currentQuestion.code,
-      playerId:     currentPlayer.id,
-      selfReflectionTag: selectedTag,
-      oceScore,
+  // Handle finishing a turn with mission progress tracking
+  const handleFinishTurnWithTracking = useCallback(() => {
+    if (!currentPlayer || !selectedChannel) return;
+
+    const missionType = CHANNEL_TO_MISSION[selectedChannel];
+
+    // Record channel play
+    recordChannelPlay({
+      playerId: currentPlayer.id,
+      channel: selectedChannel,
+      turnIndex: currentTurnIndex,
+      questionCode: currentQuestion?.code,
     });
-    setPlayState("turn");
+
+    // Update mission progress based on channel
+    if (missionType) {
+      updateMissionProgress(currentPlayer.id, missionType);
+    }
+
+    // Channel-specific bonuses
+    if (selectedChannel === "good-moments") {
+      addHeartCoins(currentPlayer.id, 1); // +1 Heart Coin for sharing
+      setEarnedCoins(1);
+    } else {
+      setEarnedCoins(0);
+    }
+
+    // Record question result if life-event
+    if (selectedChannel === "life-event" && currentQuestion) {
+      recordTurnResult({
+        questionCode: currentQuestion.code,
+        playerId: currentPlayer.id,
+        selfReflectionTag: selectedTag,
+        oceScore,
+      });
+    }
+
+    // Reset state and advance to mission update screen
     setSelectedNumberStr("");
     setCurrentQuestion(null);
     setSelectedTag(null);
+    setSelectedChannel(null);
     setOceScore(EMPTY_OCE());
+    setTargetUpdatePlayerId(null);
+    setPlayState("mission_update");
+  }, [currentPlayer, selectedChannel, currentQuestion, selectedTag, oceScore,
+      recordTurnResult, updateMissionProgress, addHeartCoins,
+      recordChannelPlay, currentTurnIndex]);
+
+  // Handle challenge result (success/fail)
+  const handleChallengeResult = useCallback((success: boolean) => {
+    if (!currentPlayer) return;
+
+    recordChannelPlay({
+      playerId: currentPlayer.id,
+      channel: "challenge-moments",
+      turnIndex: currentTurnIndex,
+      questionCode: currentQuestion?.code,
+      success,
+    });
+
+    if (success) {
+      // Update mission progress for challenge
+      updateMissionProgress(currentPlayer.id, "challenge");
+      // Everyone gets +2 coins
+      addHeartCoinsToAll(2);
+      setEarnedCoins(2);
+    } else {
+      // Everyone loses -1 coin
+      addHeartCoinsToAll(-1);
+      setEarnedCoins(-1);
+    }
+
+    // Reset state and advance to mission update screen
+    setSelectedNumberStr("");
+    setCurrentQuestion(null);
+    setSelectedTag(null);
+    setSelectedChannel(null);
+    setOceScore(EMPTY_OCE());
+    setTargetUpdatePlayerId(null);
+    setPlayState("mission_update");
+  }, [currentPlayer, currentQuestion, currentTurnIndex,
+      updateMissionProgress, addHeartCoinsToAll, recordChannelPlay]);
+
+  // Handle pass the heart target selection
+  const handlePassTheHeartTarget = useCallback((targetPlayerId: string) => {
+    if (!currentPlayer) return;
+
+    recordChannelPlay({
+      playerId: currentPlayer.id,
+      channel: "pass-the-heart",
+      turnIndex: currentTurnIndex,
+      questionCode: currentQuestion?.code,
+      targetPlayerId,
+    });
+
+    // Update mission for the TARGET player (they were chosen)
+    updateMissionProgress(targetPlayerId, "pass-the-heart");
+    setEarnedCoins(0);
+
+    setTargetUpdatePlayerId(targetPlayerId);
+    setPlayState("pass_the_heart_action");
+  }, [currentPlayer, currentQuestion, currentTurnIndex,
+      updateMissionProgress, recordChannelPlay]);
+
+  const handleFinishPassTheHeart = useCallback(() => {
+    setSelectedNumberStr("");
+    setCurrentQuestion(null);
+    setSelectedTag(null);
+    setSelectedChannel(null);
+    setOceScore(EMPTY_OCE());
+    setPlayState("mission_update");
+  }, []);
+
+  // Mission gate: just end turn (no question recorded)
+  const handleMissionGateDone = useCallback(() => {
+    setPlayState("turn");
+    setSelectedChannel(null);
     nextTurn();
-  }, [currentPlayer, currentQuestion, selectedTag, oceScore, recordTurnResult, nextTurn]);
+  }, [nextTurn]);
 
   const adjustScore = useCallback((key: keyof OCEScore, delta: number) => {
     setOceScore((prev) => ({ ...prev, [key]: Math.max(0, Math.min(6, prev[key] + delta)) }));
   }, []);
 
-  const handleFinishGame = useCallback(() => { finishGame(); router.push("/summary"); }, [finishGame, router]);
+  const handleEnterHeartGate = useCallback(() => {
+    setConfirmFinish(false);
+    setFinalReflectIndex(0);
+    setPlayState("heart_gate_waiting");
+  }, []);
+
+  const handleFinalFinish = useCallback(() => {
+    finishGame();
+    router.push("/summary");
+  }, [finishGame, router]);
 
   if (!currentPlayer) {
     return (
@@ -115,44 +273,47 @@ export default function PlayPage() {
     );
   }
 
+  // Determine the correct flow after scenario based on channel
+  const getPostScenarioAction = () => {
+    if (selectedChannel === "life-event") {
+      return () => setPlayState("opinion");
+    }
+    if (selectedChannel === "challenge-moments") {
+      // Go to challenge result YES/NO
+      return () => setPlayState("waiting"); // reuse waiting as challenge result
+    }
+    if (selectedChannel === "pass-the-heart") {
+      // Go to player picker (reuse waiting screen concept)
+      return () => setPlayState("waiting");
+    }
+    // good-moments: simple flow, just finish
+    return () => setPlayState("waiting");
+  };
+
   return (
     <PageTransition>
-      <Box sx={{ minHeight: "100vh", background: BG, pb: 6 }}>
-        <Container maxWidth="sm" sx={{ py: 3 }}>
+      <Box sx={{ minHeight: "100vh", background: BG, pb: 6, position: "relative", overflowX: "hidden" }}>
+        <CSSParticles />
+        <Container maxWidth="sm" sx={{ py: 3, position: "relative", zIndex: 1 }}>
 
-          {/* ── Top Bar ── */}
+          {/* Top Bar */}
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
             <Chip
               label={`เทิร์น ${currentTurnIndex + 1} / ${turnOrder.length}`}
               sx={{ backgroundColor: PRIMARY, color: "white", fontWeight: 600 }}
             />
-            <GlobalTimer onTimeUp={handleFinishGame} />
             <Button
               variant="outlined" color="error" size="small"
               startIcon={<StopCircleRoundedIcon />}
               onClick={() => setConfirmFinish(true)}
-              sx={{ borderRadius: 4 }}
+              sx={{ borderRadius: 2 }}
             >
               จบเกม
             </Button>
           </Box>
 
-          {/* ── Step indicator (only shown during card flow) ── */}
-          {playState !== "turn" && (
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 0.75, mb: 3 }}>
-              {(["lobby","scenario","reflection","waiting","score","summary"] as PlayState[]).map((s) => (
-                <Box key={s} sx={{
-                  width: 28, height: 6, borderRadius: 3,
-                  backgroundColor: playState === s ? PRIMARY : "#D1D5DB",
-                  transition: "background-color 0.3s",
-                }} />
-              ))}
-            </Box>
-          )}
-
-          {/* ── Screens ── */}
+          {/* Screens */}
           <AnimatePresence mode="wait">
-            {/* Step 0: Turn start — land on card space? */}
             {playState === "turn" && (
               <TurnStartScreen
                 key="turn"
@@ -160,15 +321,21 @@ export default function PlayPage() {
                 char={char}
                 turnIndex={currentTurnIndex}
                 totalTurns={turnOrder.length}
-                onPlayCard={() => setPlayState("lobby")}
-                onSkip={handleSkipTurn}
+                onSelectChannel={handleSelectChannel}
+                onSkip={() => nextTurn()}
               />
             )}
             {playState === "lobby" && (
               <LobbyScreen
                 key="lobby"
-                char={char}
-                playerName={currentPlayer.name}
+                channelName={
+                  selectedChannel === "life-event" ? "Life Event"
+                  : selectedChannel === "good-moments" ? "Good Moments"
+                  : selectedChannel === "challenge-moments" ? "Challenge Moments"
+                  : selectedChannel === "pass-the-heart" ? "Pass The Heart"
+                  : "Mission Gate"
+                }
+                prefix={getChannelCodePrefix(selectedChannel ?? "")}
                 selectedNumberStr={selectedNumberStr}
                 setSelectedNumberStr={setSelectedNumberStr}
                 inputError={inputError}
@@ -181,24 +348,54 @@ export default function PlayPage() {
               <ScenarioScreen
                 key="scenario"
                 question={currentQuestion}
-                char={char}
-                cardImageCode={selectedNumberStr}
-                onConfirm={() => setPlayState("reflection")}
+                channelName={
+                  selectedChannel === "life-event" ? "Life Event"
+                  : selectedChannel === "good-moments" ? "Good Moments"
+                  : selectedChannel === "challenge-moments" ? "Challenge Moments"
+                  : selectedChannel === "pass-the-heart" ? "Pass The Heart"
+                  : "Mission Gate"
+                }
+                onBack={() => setPlayState("lobby")}
+                onConfirm={getPostScenarioAction()}
+                // Pass channel info for different flows
+                channel={selectedChannel ?? undefined}
+                players={players}
+                currentPlayerId={currentPlayer.id}
+                onChallengeResult={handleChallengeResult}
+                onPassTheHeartTarget={handlePassTheHeartTarget}
+                onSimpleFinish={handleFinishTurnWithTracking}
               />
             )}
-            {playState === "reflection" && (
+            {playState === "opinion" && (
+              <OpinionScreen
+                key="opinion"
+                onBack={() => setPlayState("scenario")}
+                onNext={() => setPlayState("reflection")}
+              />
+            )}
+            {playState === "reflection" && currentQuestion && (
               <ReflectionScreen
                 key="reflection"
                 selectedTag={selectedTag}
                 setSelectedTag={setSelectedTag}
+                onBack={() => setPlayState("opinion")}
                 onConfirm={() => setPlayState("waiting")}
+              />
+            )}
+            {playState === "pass_the_heart_action" && currentQuestion && (
+              <PassTheHeartActionScreen
+                key="pass_the_heart_action"
+                question={currentQuestion}
+                currentPlayer={currentPlayer}
+                targetPlayer={players.find((p) => p.id === targetUpdatePlayerId)}
+                onBack={() => setPlayState("scenario")}
+                onNext={handleFinishPassTheHeart}
               />
             )}
             {playState === "waiting" && (
               <WaitingScreen
                 key="waiting"
-                playerName={currentPlayer.name}
-                charColor={char?.baseColor ?? PRIMARY}
+                onBack={() => setPlayState("reflection")}
                 onDone={() => setPlayState("score")}
               />
             )}
@@ -207,18 +404,91 @@ export default function PlayPage() {
                 key="score"
                 oceScore={oceScore}
                 adjustScore={adjustScore}
-                onSave={() => setPlayState("summary")}
+                onBack={() => setPlayState("waiting")}
+                onSave={() => setPlayState("saved")}
               />
             )}
-            {playState === "summary" && (
-              <TurnSummaryScreen
-                key="summary"
-                playerName={currentPlayer.name}
-                char={char}
-                charColor={char?.baseColor ?? PRIMARY}
-                oceScore={oceScore}
-                selectedTag={selectedTag}
-                onNext={handleFinishTurn}
+            {playState === "saved" && (
+              <SavedSuccessScreen
+                key="saved"
+                onBack={() => setPlayState("score")}
+                onDone={handleFinishTurnWithTracking}
+              />
+            )}
+            {playState === "mission_update" && (
+              <MissionUpdateScreen
+                key="mission_update"
+                targetPlayerId={targetUpdatePlayerId ?? undefined}
+                earnedCoins={earnedCoins}
+                onNext={() => {
+                  setPlayState("turn");
+                  setTargetUpdatePlayerId(null);
+                  setEarnedCoins(0);
+                  nextTurn();
+                }}
+              />
+            )}
+            {playState === "mission_gate_progress" && (
+              <MissionGateProgressScreen
+                key="mission_gate_progress"
+                onBack={() => { setPlayState("turn"); setSelectedChannel(null); }}
+                onUnlock={() => setPlayState("mission_gate_unlock")}
+                onNotReady={() => { 
+                  setPlayState("turn"); 
+                  setSelectedChannel(null); 
+                  nextTurn();
+                }}
+              />
+            )}
+            {playState === "mission_gate_unlock" && (
+              <MissionGateUnlockScreen
+                key="mission_gate_unlock"
+                onBack={() => setPlayState("mission_gate_progress")}
+                onDone={handleMissionGateDone}
+                onAllUnlocked={() => {
+                  setPlayState("heart_gate_waiting");
+                  setFinalReflectIndex(0);
+                }}
+              />
+            )}
+            {playState === "heart_gate_waiting" && (
+              <HeartGateWaitingScreen
+                key="heart_gate_waiting"
+                players={players}
+                onBack={() => {
+                  setPlayState("turn");
+                  setSelectedChannel(null);
+                  nextTurn();
+                }}
+                onReady={() => setPlayState("heart_gate_ready")}
+              />
+            )}
+            {playState === "heart_gate_ready" && (
+              <HeartGateReadyScreen
+                key="heart_gate_ready"
+                onBack={() => setPlayState("heart_gate_waiting")}
+                onNext={() => setPlayState("final_reflection")}
+              />
+            )}
+            {playState === "final_reflection" && players[finalReflectIndex] && (
+              <FinalReflectionScreen
+                key={`final_reflection_${finalReflectIndex}`}
+                players={players}
+                answeringPlayer={players[finalReflectIndex]}
+                onBack={() => {
+                  if (finalReflectIndex > 0) {
+                    setFinalReflectIndex((prev) => prev - 1);
+                  } else {
+                    setPlayState("heart_gate_ready");
+                  }
+                }}
+                onDone={() => {
+                  if (finalReflectIndex < players.length - 1) {
+                    setFinalReflectIndex((prev) => prev + 1);
+                  } else {
+                    handleFinalFinish();
+                  }
+                }}
               />
             )}
           </AnimatePresence>
@@ -227,15 +497,22 @@ export default function PlayPage() {
 
       {/* Finish game dialog */}
       <Dialog open={confirmFinish} onClose={() => setConfirmFinish(false)}
-        PaperProps={{ sx: { borderRadius: 4, p: 1 } }}>
-        <DialogTitle fontWeight={700}>จบเกม?</DialogTitle>
+        PaperProps={{ sx: { borderRadius: 2, p: 1 } }}>
+        <DialogTitle fontWeight={700}>
+          จบเกม?
+        </DialogTitle>
         <DialogContent>
-          <Typography>คุณต้องการจบเกมและดูสรุปผลหรือไม่?</Typography>
+          <Typography>
+            คุณต้องการเข้าเช็คสถานะของผู้เล่นที่หน้า Heart Gate หรือไม่?
+          </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>
-          <Button onClick={() => setConfirmFinish(false)} sx={{ borderRadius: 3 }}>ยกเลิก</Button>
-          <Button variant="contained" color="error" onClick={handleFinishGame} sx={{ borderRadius: 3 }}>
-            จบเกม
+          <Button onClick={() => setConfirmFinish(false)} sx={{ color: "#7A6248" }}>
+            ยกเลิก
+          </Button>
+          <Button variant="contained" color="error" sx={{ borderRadius: 2 }}
+            onClick={handleEnterHeartGate}>
+            เข้าสู่ Heart Gate
           </Button>
         </DialogActions>
       </Dialog>

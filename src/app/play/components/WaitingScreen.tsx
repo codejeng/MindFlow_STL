@@ -1,118 +1,153 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Box, Typography, Button, LinearProgress } from "@mui/material";
+import { Box, Typography, Button, IconButton } from "@mui/material";
 import { motion } from "framer-motion";
-import { OCE_META } from "@/context/GameContext";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 
-const WAIT_SECS = 90;
-const PRIMARY = "#5A7A65";
+const PRIMARY = "#4E7B5E";
 
 interface Props {
-  playerName: string;
-  charColor: string;
+  onBack: () => void;
   onDone: () => void;
 }
 
-export default function WaitingScreen({ playerName, charColor, onDone }: Props) {
-  const [secs, setSecs] = useState(WAIT_SECS);
-
-  useEffect(() => {
-    if (secs <= 0) { onDone(); return; }
-    const t = setTimeout(() => setSecs((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [secs, onDone]);
-
-  const pct = (secs / WAIT_SECS) * 100;
-  const mm = String(Math.floor(secs / 60)).padStart(2, "0");
-  const ss = String(secs % 60).padStart(2, "0");
-
+export default function WaitingScreen({ onBack, onDone }: Props) {
   return (
     <motion.div key="waiting" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
 
-      <Box sx={{
-        backgroundColor: "#fff", borderRadius: 4, p: 3,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.07)", textAlign: "center", mb: 2,
-      }}>
-        {/* Coin box animation */}
-        <Box component={motion.div}
-          animate={{ y: [0, -8, 0] }} transition={{ duration: 2, repeat: Infinity }}
-          sx={{ fontSize: "4rem", mb: 1 }}>
-          📦
-        </Box>
-
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 0.5, mb: 2 }}>
-          {[0, 1, 2].map((i) => (
-            <Box
-              key={i}
-              component={motion.div}
-              animate={{ y: [0, -12, 0], opacity: [1, 0.5, 1] }}
-              transition={{ duration: 1.2, delay: i * 0.3, repeat: Infinity }}
-              sx={{ fontSize: "1.5rem" }}
-            >
-              🪙
-            </Box>
-          ))}
-        </Box>
-
-        <Typography fontWeight={700} sx={{ color: "#1F2937", fontSize: "1.15rem", mb: 0.5 }}>
-          รอเพื่อน ๆ หย่อนเหรียญลงกล่อง
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <IconButton onClick={onBack} sx={{ color: "#7A6248" }}>
+          <ArrowBackRoundedIcon />
+        </IconButton>
+        <Typography fontWeight={800} sx={{ flex: 1, textAlign: "center", color: "#3B9AB8", fontSize: "0.85rem", letterSpacing: "0.05em", mr: 5 }}>
+          9. ให้คะแนน (เพื่อนให้ธนบัตร)
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          <Box component="span" fontWeight={700} sx={{ color: charColor }}>{playerName}</Box>
-          {" "}— เพื่อนจะให้คะแนนคุณใน 3 มิติ
-        </Typography>
-
-        {/* Trait icons */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 3 }}>
-          {(Object.entries(OCE_META) as [string, typeof OCE_META[keyof typeof OCE_META]][]).map(([, m]) => (
-            <Box key={m.labelEn} sx={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5,
-            }}>
-              <Box sx={{
-                width: 48, height: 48, borderRadius: "50%",
-                backgroundColor: m.bg, display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "1.4rem", border: `2px solid ${m.color}40`,
-              }}>
-                {m.icon}
-              </Box>
-              <Typography variant="caption" fontWeight={600} sx={{ color: m.color, fontSize: "0.7rem" }}>
-                {m.labelEn}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Countdown */}
-        <Box sx={{
-          backgroundColor: secs <= 15 ? "#FEF2F2" : "#F0FDF4",
-          borderRadius: 3, py: 1.5, px: 2, mb: 2,
-          border: `1px solid ${secs <= 15 ? "#FCA5A5" : "#86EFAC"}`,
-        }}>
-          <Typography fontWeight={800} sx={{
-            fontSize: "2rem", letterSpacing: "0.1em",
-            color: secs <= 15 ? "#DC2626" : PRIMARY,
-          }}>
-            {mm}:{ss}
-          </Typography>
-        </Box>
-
-        <LinearProgress variant="determinate" value={pct} sx={{
-          height: 8, borderRadius: 4,
-          backgroundColor: "#E5E7EB",
-          "& .MuiLinearProgress-bar": {
-            background: secs <= 15
-              ? "linear-gradient(90deg,#FCA5A5,#EF4444)"
-              : `linear-gradient(90deg,#86EFAC,${PRIMARY})`,
-            borderRadius: 4,
-          },
-        }} />
       </Box>
 
-      <Button variant="outlined" fullWidth onClick={onDone}
-        sx={{ py: 1.5, borderRadius: 3, fontWeight: 600, borderColor: PRIMARY, color: PRIMARY }}>
-        นับเหรียญแล้ว → กรอกคะแนน
-      </Button>
+      <Box sx={{
+        backgroundColor: "#FFFFFF", borderRadius: 2, p: 4,
+        boxShadow: "0 4px 24px rgba(100,70,30,0.09)", textAlign: "center", mb: 2,
+        border: "1px solid rgba(180,155,120,0.18)",
+      }}>
+        <Typography fontWeight={900} sx={{ color: "#2C2218", fontSize: "1.25rem", mb: 0.5 }}>
+          เพื่อน ๆ ให้คะแนนคุณแล้ว
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#7A6248", mb: 4, fontWeight: 600 }}>
+          (นำธนบัตรใส่ซองของคุณ)
+        </Typography>
+
+        {/* Illustration: Animated Envelope and Coins */}
+        <Box sx={{
+          width: 180, height: 160, mx: "auto", mb: 4,
+          position: "relative",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          {/* Envelope Back */}
+          <Box sx={{
+            position: "absolute", top: 40, width: 120, height: 80,
+            backgroundColor: "#D9B890", borderRadius: 1,
+            zIndex: 1,
+          }} />
+
+          {/* Envelope Flap (Open) */}
+          <Box sx={{
+            position: "absolute", top: 10, width: 0, height: 0,
+            borderLeft: "60px solid transparent",
+            borderRight: "60px solid transparent",
+            borderBottom: "45px solid #E4C8A5",
+            zIndex: 2, transformOrigin: "bottom",
+          }} />
+
+          {/* Heart on Envelope */}
+          <Box sx={{
+            position: "absolute", top: 65, zIndex: 4,
+            backgroundColor: "#F9F5F0", borderRadius: "50%", p: 0.5,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            <FavoriteRoundedIcon sx={{ color: "#D45B5B", fontSize: "1.2rem" }} />
+          </Box>
+
+          {/* Envelope Front */}
+          <Box sx={{
+            position: "absolute", top: 40, width: 120, height: 80,
+            backgroundColor: "#E4C8A5", borderRadius: 1,
+            zIndex: 4,
+            clipPath: "polygon(0 0, 50% 45%, 100% 0, 100% 100%, 0 100%)",
+            boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.05)"
+          }} />
+
+          {/* Coins Animation */}
+          {/* Blue Coin */}
+          <Box component={motion.div}
+            initial={{ y: 0, opacity: 0, scale: 0.5 }}
+            animate={{ y: -30, x: -50, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 120 }}
+            sx={{
+              position: "absolute", top: 80, left: "50%", zIndex: 5,
+              width: 48, height: 48, borderRadius: "50%", marginLeft: "-24px",
+              backgroundColor: "#8FB8C4", border: "4px solid #7AA8B8",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.15)"
+            }}
+          >
+            <StarRoundedIcon sx={{ color: "#6A9AA8", fontSize: "1.5rem" }} />
+          </Box>
+
+          {/* Pink Coin */}
+          <Box component={motion.div}
+            initial={{ y: 0, opacity: 0, scale: 0.5 }}
+            animate={{ y: -10, x: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.4, type: "spring", stiffness: 120 }}
+            sx={{
+              position: "absolute", top: 80, left: "50%", zIndex: 6,
+              width: 52, height: 52, borderRadius: "50%", marginLeft: "-26px",
+              backgroundColor: "#E89B9B", border: "4px solid #D48080",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.15)"
+            }}
+          >
+            <StarRoundedIcon sx={{ color: "#C06565", fontSize: "1.8rem" }} />
+          </Box>
+
+          {/* Yellow Coin */}
+          <Box component={motion.div}
+            initial={{ y: 0, opacity: 0, scale: 0.5 }}
+            animate={{ y: -30, x: 50, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.6, type: "spring", stiffness: 120 }}
+            sx={{
+              position: "absolute", top: 80, left: "50%", zIndex: 5,
+              width: 48, height: 48, borderRadius: "50%", marginLeft: "-24px",
+              backgroundColor: "#F2CE6E", border: "4px solid #E0B850",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.15)"
+            }}
+          >
+            <StarRoundedIcon sx={{ color: "#C8A030", fontSize: "1.5rem" }} />
+          </Box>
+        </Box>
+
+        <Typography variant="body2" sx={{ color: "#7A6248", mb: 1, fontWeight: 600 }}>
+          เมื่อเพื่อนให้คะแนนเสร็จ
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#7A6248", mb: 4, fontWeight: 600 }}>
+          นับคะแนนรวมของคุณ
+        </Typography>
+
+        <Button variant="contained" fullWidth onClick={onDone}
+          component={motion.button} whileTap={{ scale: 0.97 }}
+          sx={{
+            py: 1.85, borderRadius: 4, fontWeight: 800, fontSize: "1.1rem",
+            background: `linear-gradient(135deg, ${PRIMARY}, #7AA880)`,
+            boxShadow: `0 6px 20px ${PRIMARY}40`,
+            textTransform: "none",
+          }}>
+          กรอกคะแนนรวม
+        </Button>
+      </Box>
     </motion.div>
   );
 }
