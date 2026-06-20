@@ -10,7 +10,9 @@ import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded";
 import FeedbackFAB from "@/components/common/FeedbackFAB";
+import CSSParticles from "@/components/common/CSSParticles";
 
 const PRIMARY = "#4E7B5E";
 const ACCENT  = "#CF6B3E";
@@ -32,6 +34,8 @@ export default function Home() {
       position: "relative",
       overflowX: "hidden",
     }}>
+
+      <CSSParticles />
 
       {/* ── Top right: Auth ── */}
       <Box sx={{ position: "absolute", top: 18, right: 18, zIndex: 10 }}>
@@ -83,53 +87,21 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.55, type: "spring", stiffness: 180 }}
-          sx={{ mb: 1.25 }}>
-          <Image src="/images/logo.png" alt="Mindflow" width={80} height={80}
+          sx={{ mb: -4 }}>
+          <Image src="/images/logo.png" alt="Mindflow" width={260} height={260}
             style={{ objectFit: "contain" }} priority />
-        </Box>
-
-        {/* Title */}
-        <Box component={motion.div}
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.12 }}>
-          <Typography fontWeight={800} sx={{
-            fontSize: "2.6rem", color: "#2C2218", lineHeight: 1,
-            letterSpacing: "-0.02em", mb: 1,
-            fontFamily: "var(--font-fredoka), sans-serif",
-          }}>
-            Mindflow
-          </Typography>
         </Box>
 
         {/* Subtitle */}
         <Box component={motion.div}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 0.55, delay: 0.22 }}
-          sx={{ textAlign: "center", mb: 0.5 }}>
-          <Typography sx={{ color: "#7A6248", fontSize: "0.93rem", lineHeight: 1.7, fontWeight: 400 }}>
-            เข้าใจตนเอง เชื่อมโยงผู้อื่น
+          sx={{ textAlign: "center", mb: 4 }}>
+          <Typography sx={{ color: "#7A6248", fontSize: "1.2rem", lineHeight: 1.5, fontWeight: 700 }}>
+            เกมแห่งการเข้าใจตนเอง
             <br />
-            และค้นหาความช่วยเหลือที่เหมาะกับคุณ
+            และกันและกัน
           </Typography>
-        </Box>
-
-        {/* Illustration */}
-        <Box component={motion.div}
-          initial={{ opacity: 0, y: 20, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.28, type: "spring", stiffness: 120 }}
-          sx={{ width: "100%", mb: 3.5, mt: 1 }}>
-          <Box sx={{
-            borderRadius: 5,
-            overflow: "hidden",
-            boxShadow: "0 16px 48px rgba(100,70,30,0.16)",
-            border: "1.5px solid rgba(255,255,255,0.6)",
-            backgroundColor: "#FEF9F0",
-          }}>
-            <Image src="/images/landing.png" alt="Mindflow Board Game" width={400} height={300}
-              style={{ width: "100%", height: "auto", display: "block" }} priority />
-          </Box>
         </Box>
 
         {/* Buttons */}
@@ -137,44 +109,87 @@ export default function Home() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.42 }}
-          sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1.5 }}>
+          sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, position: "relative", zIndex: 5 }}>
 
           {/* เล่นเกม */}
           <Button variant="contained" fullWidth size="large"
-            onClick={() => router.push("/setup")}
+            onClick={() => router.push("/select-deck")}
+            component={motion.button}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             startIcon={<SportsEsportsRoundedIcon sx={{ fontSize: "1.4rem !important" }} />}
             endIcon={<ChevronRightRoundedIcon sx={{ fontSize: "1.5rem !important", opacity: 0.85 }} />}
             sx={{
-              py: 1.85, px: 3, borderRadius: "16px",
-              fontSize: "1.05rem", fontWeight: 700, textTransform: "none",
+              py: 2, px: 3, borderRadius: "20px",
+              fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
-              background: `linear-gradient(135deg, #4E7B5E 0%, #5E8F6E 100%)`,
-              boxShadow: "0 6px 24px rgba(78,123,94,0.45)",
-              letterSpacing: "0.01em",
+              background: `linear-gradient(135deg, #4E7B5E 0%, #689E79 100%)`,
+              boxShadow: "0 8px 30px rgba(78,123,94,0.35)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              letterSpacing: "0.02em",
               "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
               "& .MuiButton-endIcon": { ml: "auto" },
-              "&:hover": { background: `linear-gradient(135deg,#3E6B4E 0%,#4E7F5E 100%)` },
+              "&:hover": { 
+                background: `linear-gradient(135deg,#3E6B4E 0%,#4E7B5E 100%)`,
+                boxShadow: "0 10px 35px rgba(78,123,94,0.45)",
+              },
             }}>
-            <Typography fontWeight={700} sx={{ fontSize: "1.05rem" }}>เล่นเกม</Typography>
+            เล่นเกม
+          </Button>
+
+          {/* คู่มือการเล่น */}
+          <Button variant="contained" fullWidth size="large"
+            onClick={() => router.push("")}
+            component={motion.button}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            startIcon={<ImportContactsRoundedIcon sx={{ fontSize: "1.3rem !important", color: "#A88D6F" }} />}
+            endIcon={<ChevronRightRoundedIcon sx={{ fontSize: "1.5rem !important", color: "#A88D6F", opacity: 0.7 }} />}
+            sx={{
+              py: 2, px: 3, borderRadius: "20px",
+              fontSize: "1.05rem", fontWeight: 800, textTransform: "none",
+              justifyContent: "space-between",
+              background: "rgba(255,255,255,0.9)",
+              color: "#5A4A36",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+              border: "1px solid rgba(180,155,120,0.3)",
+              backdropFilter: "blur(10px)",
+              letterSpacing: "0.02em",
+              "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
+              "& .MuiButton-endIcon": { ml: "auto" },
+              "&:hover": { 
+                background: "#FFFFFF",
+                boxShadow: "0 8px 25px rgba(0,0,0,0.09)",
+                borderColor: "rgba(180,155,120,0.5)",
+              },
+            }}>
+            คู่มือการเล่น
           </Button>
 
           {/* ปรึกษาผู้เชี่ยวชาญ */}
           <Button variant="contained" fullWidth size="large"
             onClick={() => router.push("/consult")}
+            component={motion.button}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             startIcon={<ForumRoundedIcon sx={{ fontSize: "1.4rem !important" }} />}
             endIcon={<ChevronRightRoundedIcon sx={{ fontSize: "1.5rem !important", opacity: 0.85 }} />}
             sx={{
-              py: 1.85, px: 3, borderRadius: "16px",
-              fontSize: "1.05rem", fontWeight: 700, textTransform: "none",
+              py: 2, px: 3, borderRadius: "20px",
+              fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
               background: `linear-gradient(135deg, #CF6B3E 0%, #DF7E52 100%)`,
-              boxShadow: "0 6px 24px rgba(207,107,62,0.45)",
-              letterSpacing: "0.01em",
+              boxShadow: "0 8px 30px rgba(207,107,62,0.35)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              letterSpacing: "0.02em",
               "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
               "& .MuiButton-endIcon": { ml: "auto" },
-              "&:hover": { background: `linear-gradient(135deg,#BF5B2E 0%,#CF6E42 100%)` },
+              "&:hover": { 
+                background: `linear-gradient(135deg,#BF5B2E 0%,#CF6B3E 100%)`,
+                boxShadow: "0 10px 35px rgba(207,107,62,0.45)",
+              },
             }}>
-            <Typography fontWeight={700} sx={{ fontSize: "1.05rem" }}>ปรึกษาผู้เชี่ยวชาญ</Typography>
+            ปรึกษาผู้เชี่ยวชาญ
           </Button>
         </Box>
       </Box>

@@ -1,8 +1,10 @@
 "use client";
 
-import { Box, Typography, Button, Container } from "@mui/material";
+import { useEffect } from "react";
+
+import { Box, Typography, Button, Container, Chip } from "@mui/material";
 import Image from "next/image";
-import { motion, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useGame, CHARACTERS } from "@/context/GameContext";
 import PageTransition from "@/components/common/PageTransition";
@@ -10,125 +12,328 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import DragIndicatorRoundedIcon from "@mui/icons-material/DragIndicatorRounded";
-import PersonIcon from "@mui/icons-material/Person";
-import ChildCareIcon from "@mui/icons-material/ChildCare";
-import GroupIcon from "@mui/icons-material/Group";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import { useState } from "react";
 
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const BG      = "#FAF5EC";
+const PRIMARY = "#4E7B5E";
+const ACCENT  = "#CF6B3E";
+const CARD_BG = "#FFFFFF";
+
+// ─── Role helpers ─────────────────────────────────────────────────────────────
+function getRoleLabel(role: string): string {
+  if (role === "parent") return "ผู้ปกครอง";
+  if (role === "child")  return "ลูก";
+  return "เพื่อน";
+}
+
+function getRoleIcon(role: string) {
+  if (role === "parent") return <PersonRoundedIcon sx={{ fontSize: 13 }} />;
+  if (role === "child")  return <ChildCareRoundedIcon sx={{ fontSize: 13 }} />;
+  return <GroupsRoundedIcon sx={{ fontSize: 13 }} />;
+}
+
+function getRoleColor(role: string): string {
+  if (role === "parent") return PRIMARY;
+  if (role === "child")  return ACCENT;
+  return "#7C5CBF";
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function OrderPage() {
   const router = useRouter();
-  const { players, turnOrder, setTurnOrder, randomizeTurnOrder, setGamePhase, setGameStartTime } = useGame();
+  const {
+    players, turnOrder, setTurnOrder,
+    randomizeTurnOrder,
+  } = useGame();
+
+  const [shuffled, setShuffled] = useState(false);
+
+  // Seed turn order from players on first mount if setup never called setTurnOrder
+  useEffect(() => {
+    if (players.length > 0 && turnOrder.length === 0) {
+      setTurnOrder(players.map((p) => p.id));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleShuffle = () => {
+    randomizeTurnOrder();
+    setShuffled(true);
+    setTimeout(() => setShuffled(false), 600);
+  };
 
   const handleStart = () => {
-    setGameStartTime(Date.now());
-    setGamePhase("playing");
-    router.push("/play");
+    router.push("/intro");
   };
 
   return (
     <PageTransition>
-      <Container maxWidth="sm" sx={{ py: 4, minHeight: "100vh" }}>
-        {/* Header */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Typography variant="h4" fontWeight={600} sx={{ color: "#1B7B7E", mb: 1 }}>
-            ลำดับการเล่น
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            ลากเพื่อจัดลำดับ หรือกดสุ่ม
-          </Typography>
-        </Box>
+      <Box sx={{ minHeight: "100vh", background: BG, pb: 16 }}>
+        <Container maxWidth="sm" sx={{ pt: 3 }}>
 
-        {/* Shuffle button */}
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ShuffleRoundedIcon />}
-            onClick={randomizeTurnOrder}
-            component={motion.button}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95, rotate: 180 }}
-            sx={{
-              borderRadius: 6, borderColor: "#E8A838", color: "#E8A838",
-              fontWeight: 600, px: 3,
-              "&:hover": { borderColor: "#D4972E", backgroundColor: "#FFF8E1" },
-            }}
-          >
-            🎲 สุ่มลำดับ
-          </Button>
-        </Box>
+          {/* Back */}
+          <Box sx={{ mb: 2 }}>
+            <Button
+              onClick={() => router.push("/setup")}
+              startIcon={<ArrowBackRoundedIcon />}
+              sx={{
+                color: "#7A6248", textTransform: "none", fontWeight: 600,
+                borderRadius: 3, px: 1.5, py: 0.75,
+                "&:hover": { backgroundColor: `${PRIMARY}12` },
+              }}
+            >
+              ย้อนกลับ
+            </Button>
+          </Box>
 
-        {/* Reorderable list */}
-        <Reorder.Group axis="y" values={turnOrder} onReorder={setTurnOrder}
-          style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {turnOrder.map((id, index) => {
-            const player = players.find((p) => p.id === id);
-            if (!player) return null;
-            const char = CHARACTERS.find((c) => c.id === player.characterId) ?? CHARACTERS[0];
+          {/* Header */}
+          <Box sx={{ textAlign: "center", mb: 3.5 }}>
+            <Typography
+              component="span"
+              sx={{
+                display: "inline-block",
+                backgroundColor: `${PRIMARY}15`,
+                color: PRIMARY,
+                fontWeight: 800,
+                fontSize: "0.75rem",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                borderRadius: 2,
+                px: 1.5, py: 0.4, mb: 1,
+              }}
+            >
+              4. PLAYER ORDER
+            </Typography>
+            <Typography
+              fontWeight={900}
+              sx={{ color: "#2C2218", fontSize: "1.8rem", letterSpacing: "-0.02em" }}
+            >
+              ลำดับการเล่น
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#7A6248", mt: 0.5 }}>
+              ลากเพื่อจัดลำดับ หรือกดสุ่ม
+            </Typography>
+          </Box>
 
-            return (
-              <Reorder.Item key={id} value={id} style={{ marginBottom: 12 }}>
+          {/* Shuffle button */}
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+            <Button
+              variant="outlined"
+              startIcon={
                 <Box
                   component={motion.div}
-                  whileHover={{ scale: 1.02 }}
-                  whileDrag={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
-                  sx={{
-                    display: "flex", alignItems: "center", gap: 2, p: 2,
-                    borderRadius: 3, backgroundColor: "white",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                    cursor: "grab", userSelect: "none",
-                    border: "2px solid transparent",
-                    "&:hover": { borderColor: char.baseColor + "44" },
-                  }}
+                  animate={shuffled ? { rotate: 360 } : { rotate: 0 }}
+                  transition={{ duration: 0.45, ease: "easeInOut" }}
+                  sx={{ display: "flex", alignItems: "center" }}
                 >
-                  <DragIndicatorRoundedIcon sx={{ color: "#CCC", fontSize: 20 }} />
-
-                  {/* Number badge */}
-                  <Box sx={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${char.baseColor}, ${char.baseColor}88)`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "white", fontWeight: 700, fontSize: "1.2rem", flexShrink: 0,
-                  }}>
-                    {index + 1}
-                  </Box>
-
-                  {/* Character image */}
-                  <Box sx={{ width: 48, height: 60, position: "relative", flexShrink: 0 }}>
-                    <Image src={char.image} alt={char.name} fill style={{ objectFit: "contain" }} />
-                  </Box>
-
-                  {/* Info */}
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="h6" fontWeight={600} noWrap sx={{ color: char.baseColor }}>
-                      {player.name}
-                    </Typography>
-                    <Box sx={{
-                      display: "inline-flex", alignItems: "center", gap: 0.5,
-                      backgroundColor: player.role === "parent" ? "#E8F5E9" : player.role === "child" ? "#FFF3E0" : "#F3E5F5",
-                      color: player.role === "parent" ? "#2E7D32" : player.role === "child" ? "#E65100" : "#7B1FA2",
-                      borderRadius: 1.5, px: 1, py: 0.25, fontSize: "0.75rem", fontWeight: 500,
-                    }}>
-                      {player.role === "parent" ? <PersonIcon sx={{ fontSize: 14 }} /> : player.role === "child" ? <ChildCareIcon sx={{ fontSize: 14 }} /> : <GroupIcon sx={{ fontSize: 14 }} />}
-                      {player.role === "parent" ? "ผู้ปกครอง" : player.role === "child" ? "ลูก" : "เพื่อน"}
-                    </Box>
-                  </Box>
+                  <ShuffleRoundedIcon sx={{ fontSize: "1.1rem" }} />
                 </Box>
-              </Reorder.Item>
-            );
-          })}
-        </Reorder.Group>
+              }
+              onClick={handleShuffle}
+              component={motion.button}
+              whileTap={{ scale: 0.94 }}
+              sx={{
+                borderRadius: "12px",
+                borderColor: ACCENT,
+                color: ACCENT,
+                fontWeight: 700,
+                px: 3.5, py: 1.1,
+                fontSize: "0.9rem",
+                textTransform: "none",
+                "&:hover": {
+                  borderColor: "#BF5B2E",
+                  backgroundColor: `${ACCENT}0E`,
+                },
+              }}
+            >
+              สุ่มลำดับ
+            </Button>
+          </Box>
 
-        {/* Bottom buttons */}
-        <Box sx={{ display: "flex", gap: 2, mt: 4, position: "sticky", bottom: 16, zIndex: 10 }}>
-          <Button variant="outlined" onClick={() => router.push("/setup")} startIcon={<ArrowBackRoundedIcon />}
-            sx={{ flex: 1, py: 1.5, borderRadius: 4, borderColor: "#CCC", color: "text.secondary" }}>
-            กลับ
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleStart}
-            endIcon={<ArrowForwardRoundedIcon />} sx={{ flex: 2, py: 1.5, fontSize: "1.1rem" }}>
-            เริ่มเล่น!
-          </Button>
+          {/* Reorderable list */}
+          <Box
+            component={motion.div}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            sx={{
+              backgroundColor: CARD_BG,
+              borderRadius: 3,
+              p: 2,
+              boxShadow: "0 4px 24px rgba(100,70,30,0.09)",
+              border: "1px solid rgba(180,155,120,0.18)",
+              mb: 2.5,
+            }}
+          >
+            <Reorder.Group
+              axis="y"
+              values={turnOrder}
+              onReorder={setTurnOrder}
+              style={{ listStyle: "none", padding: 0, margin: 0 }}
+            >
+              <AnimatePresence initial={false}>
+                {turnOrder.map((id, index) => {
+                  const player = players.find((p) => p.id === id);
+                  if (!player) return null;
+                  const char = CHARACTERS.find((c) => c.id === player.characterId) ?? CHARACTERS[0];
+                  const roleColor = getRoleColor(player.role);
+
+                  return (
+                    <Reorder.Item
+                      key={id}
+                      value={id}
+                      style={{ marginBottom: index < turnOrder.length - 1 ? 10 : 0 }}
+                    >
+                      <Box
+                        component={motion.div}
+                        layout
+                        whileDrag={{
+                          scale: 1.03,
+                          boxShadow: "0 12px 36px rgba(78,123,94,0.22)",
+                          zIndex: 10,
+                        }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 3,
+                          backgroundColor: "#FDFAF5",
+                          border: `1.5px solid rgba(180,155,120,0.2)`,
+                          cursor: "grab",
+                          userSelect: "none",
+                          "&:active": { cursor: "grabbing" },
+                          transition: "border-color 0.15s, box-shadow 0.15s",
+                          "&:hover": {
+                            borderColor: `${char.baseColor}55`,
+                            boxShadow: `0 3px 14px ${char.baseColor}18`,
+                          },
+                        }}
+                      >
+                        {/* Drag handle */}
+                        <DragIndicatorRoundedIcon
+                          sx={{ color: "#C8BAA8", fontSize: "1.2rem", flexShrink: 0 }}
+                        />
+
+                        {/* Order badge */}
+                        <Box
+                          sx={{
+                            width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                            background: `linear-gradient(135deg, ${char.baseColor}, ${char.baseColor}BB)`,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "white", fontWeight: 800, fontSize: "0.95rem",
+                            boxShadow: `0 3px 10px ${char.baseColor}44`,
+                          }}
+                        >
+                          {index + 1}
+                        </Box>
+
+                        {/* Character image */}
+                        <Box sx={{ width: 46, height: 56, position: "relative", flexShrink: 0 }}>
+                          <Image
+                            src={char.image}
+                            alt={char.name}
+                            fill
+                            style={{ objectFit: "contain" }}
+                          />
+                        </Box>
+
+                        {/* Player info */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            fontWeight={800}
+                            noWrap
+                            sx={{ color: "#2C2218", fontSize: "0.98rem", lineHeight: 1.3 }}
+                          >
+                            {player.name}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "inline-flex", alignItems: "center", gap: 0.5,
+                              mt: 0.4,
+                              backgroundColor: `${roleColor}14`,
+                              color: roleColor,
+                              borderRadius: 1.5, px: 0.9, py: 0.2,
+                            }}
+                          >
+                            {getRoleIcon(player.role)}
+                            <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, lineHeight: 1 }}>
+                              {getRoleLabel(player.role)}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* First indicator */}
+                        {index === 0 && (
+                          <Chip
+                            label="เริ่มก่อน"
+                            size="small"
+                            sx={{
+                              backgroundColor: `${PRIMARY}18`,
+                              color: PRIMARY,
+                              fontWeight: 700,
+                              fontSize: "0.65rem",
+                              height: 22,
+                              flexShrink: 0,
+                              "& .MuiChip-label": { px: 1 },
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Reorder.Item>
+                  );
+                })}
+              </AnimatePresence>
+            </Reorder.Group>
+          </Box>
+
+          {/* Hint */}
+          <Box sx={{ textAlign: "center", mb: 2 }}>
+            <Typography variant="caption" sx={{ color: "#B0A090" }}>
+              กดค้างแล้วลากเพื่อเปลี่ยนลำดับ
+            </Typography>
+          </Box>
+
+        </Container>
+
+        {/* Sticky Start button */}
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          sx={{
+            position: "fixed", bottom: 64, left: 0, right: 0,
+            px: 3, pb: 2, pt: 1.5,
+            background: "linear-gradient(180deg,transparent 0%,rgba(250,245,236,0.97) 28%)",
+          }}
+        >
+          <Box sx={{ maxWidth: 600, mx: "auto" }}>
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              onClick={handleStart}
+              endIcon={<ArrowForwardRoundedIcon />}
+              component={motion.button}
+              whileTap={{ scale: 0.97 }}
+              sx={{
+                py: 1.85, borderRadius: "16px", textTransform: "none",
+                fontWeight: 800, fontSize: "1.1rem",
+                background: `linear-gradient(135deg,${PRIMARY},#5E8F6E)`,
+                boxShadow: `0 6px 24px ${PRIMARY}50`,
+                letterSpacing: "0.02em",
+              }}
+            >
+              เริ่มเกม
+            </Button>
+          </Box>
         </Box>
-      </Container>
+      </Box>
     </PageTransition>
   );
 }
