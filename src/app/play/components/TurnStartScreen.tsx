@@ -16,7 +16,6 @@ const BG      = "#FAF5EC";
 interface ChannelItem {
   id: string;
   label: string;
-  description: string;
   iconBg: string;
   iconColor: string;
   Icon: React.ElementType;
@@ -41,7 +40,6 @@ const CHANNELS: ChannelItem[] = [
   {
     id: "life-event",
     label: "Life Event",
-    description: "ตอบคำถาม รับคะแนนทักษะ 4 ด้าน",
     iconBg: "#DFF0F5",
     iconColor: "#3B9AB8",
     Icon: ChatRoundedIcon,
@@ -49,7 +47,6 @@ const CHANNELS: ChannelItem[] = [
   {
     id: "good-moments",
     label: "Good Moments",
-    description: "แชร์เรื่องราวดีๆ รับ 1 Heart Coin",
     iconBg: "#E6F5EC",
     iconColor: "#4E7B5E",
     Icon: FavoriteRoundedIcon,
@@ -57,7 +54,6 @@ const CHANNELS: ChannelItem[] = [
   {
     id: "challenge-moments",
     label: "Challenge Moments",
-    description: "ทำภารกิจกลุ่ม สำเร็จรับ 2 Heart Coins ทุกคน",
     iconBg: "#F3E8FF",
     iconColor: "#7C5CBF",
     Icon: ExtensionRoundedIcon,
@@ -65,7 +61,6 @@ const CHANNELS: ChannelItem[] = [
   {
     id: "pass-the-heart",
     label: "Pass The Heart",
-    description: "ส่งให้เพื่อนตอบ เพื่อนได้ความคืบหน้า",
     iconBg: "#FFE8E8",
     iconColor: "#D45B5B",
     Icon: FavoriteRoundedIcon,
@@ -73,7 +68,6 @@ const CHANNELS: ChannelItem[] = [
   {
     id: "mission-gate",
     label: "Mission Gate",
-    description: "เช็คความคืบหน้า",
     iconBg: "#FDF3E3",
     iconColor: "#D4A012",
     Icon: () => <MiniGateIcon color="#D4A012" />,
@@ -147,13 +141,13 @@ export default function TurnStartScreen({
           {/* Name + sub */}
           <Box>
             <Typography variant="caption" sx={{ color: "#9C8B76", fontWeight: 600, letterSpacing: "0.04em" }}>
-              ถึงตาของ
+              เลือกช่องที่ตก
+            </Typography>
+            <Typography variant="caption" sx={{ color: "#9C8B76", display: "block",fontWeight: 600, letterSpacing: "0.04em" }}>
+              ถึงตาทอยลูกเต๋าของ
             </Typography>
             <Typography fontWeight={900} sx={{ color: "#2C2218", fontSize: "1.2rem", lineHeight: 1.2 }}>
               {currentPlayer.name}
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#9C8B76", mt: 0.25, display: "block" }}>
-              กรุณาเลือกช่องที่คุณตก
             </Typography>
           </Box>
         </Box>
@@ -206,7 +200,7 @@ export default function TurnStartScreen({
                 <ch.Icon sx={{ color: ch.iconColor, fontSize: "1.5rem" }} />
               </Box>
 
-              {/* Label + description */}
+              {/* Label */}
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography
                   fontWeight={700}
@@ -214,12 +208,6 @@ export default function TurnStartScreen({
                 >
                   {ch.label}
                   {ch.id === "mission-gate" && currentPlayer.doorUnlocked && " (ปลดล็อกแล้ว)"}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#9C8B76", fontSize: "0.78rem", lineHeight: 1.3 }}
-                >
-                  ({ch.description})
                 </Typography>
               </Box>
 
