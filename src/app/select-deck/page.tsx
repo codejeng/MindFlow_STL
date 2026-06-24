@@ -24,12 +24,12 @@ interface DeckOption {
 }
 
 const DECKS: DeckOption[] = [
-  {
-    id: "family",
-    label: "ครอบครัว",
-    labelEn: "Family",
-    image: "/deck-icons/family.png",
-  },
+  // {
+  //   id: "family",
+  //   label: "ครอบครัว",
+  //   labelEn: "Family",
+  //   image: "/deck-icons/family.png",
+  // },
   {
     id: "primary",
     label: "ประถมศึกษา",
@@ -42,12 +42,12 @@ const DECKS: DeckOption[] = [
     labelEn: "Secondary School",
     image: "/deck-icons/secondary.png",
   },
-  {
-    id: "university",
-    label: "นักศึกษา",
-    labelEn: "University",
-    image: "/deck-icons/university.png",
-  },
+  // {
+  //   id: "university",
+  //   label: "นักศึกษา",
+  //   labelEn: "University",
+  //   image: "/deck-icons/university.png",
+  // },
 ];
 
 export default function SelectDeckPage() {

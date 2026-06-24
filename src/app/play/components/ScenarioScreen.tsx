@@ -254,8 +254,8 @@ export default function ScenarioScreen({
 
         {/* Card Image Container */}
         <Box sx={{
-          width: "100%", maxWidth: 280, aspectRatio: "4/3",
-          borderRadius: 4, overflow: "hidden",
+          width: "100%", maxWidth: 280,
+          borderRadius: 0.5, overflow: "hidden",
           backgroundColor: "#F9F5F0",
           border: "1.5px dashed rgba(180,155,120,0.4)",
           position: "relative",

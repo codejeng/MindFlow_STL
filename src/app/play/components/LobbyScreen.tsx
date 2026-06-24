@@ -22,8 +22,10 @@ export default function LobbyScreen({
   channelName, prefix, selectedNumberStr, setSelectedNumberStr,
   inputError, setInputError, onSubmit, onBack,
 }: Props) {
+  const expectedDigits = ["PC", "PP", "SC", "SP"].includes(prefix) ? 2 : 3;
+
   const handleKey = (key: string) => {
-    if (selectedNumberStr.length >= 3) return; // allow exactly 3 digits
+    if (selectedNumberStr.length >= expectedDigits) return; // allow exact number of digits
     setSelectedNumberStr((p: string) => p + key);
     setInputError("");
   };
@@ -34,7 +36,7 @@ export default function LobbyScreen({
   };
 
   const codeChars = (prefix + selectedNumberStr).split("");
-  const totalSlots = prefix.length + 3;
+  const totalSlots = prefix.length + expectedDigits;
   
   // Pad with empty strings
   while (codeChars.length < totalSlots) {
@@ -96,7 +98,7 @@ export default function LobbyScreen({
         </Box>
 
         <Typography variant="caption" sx={{ color: "#B0A090", mb: 4, display: "block" }}>
-          เช่น P024, F015, S030, U012
+          เช่น PC01, GM001, CH001, PH001
         </Typography>
 
         {/* Numpad */}
@@ -123,7 +125,7 @@ export default function LobbyScreen({
           </Typography>
         )}
 
-        <Button variant="contained" fullWidth disabled={selectedNumberStr.length !== 3} onClick={onSubmit}
+        <Button variant="contained" fullWidth disabled={selectedNumberStr.length !== expectedDigits} onClick={onSubmit}
           component={motion.button} whileTap={{ scale: 0.97 }}
           sx={{
             py: 1.85, borderRadius: 4, fontWeight: 800, fontSize: "1.1rem",

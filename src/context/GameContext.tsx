@@ -295,12 +295,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetGame = useCallback(() => {
-    setState({
+    setState((prev) => ({
       players: [], turnOrder: [], currentTurnIndex: 0,
       gamePhase: "setup", questionHistory: [], channelHistory: [],
       oceTotal: EMPTY_OCE(),
-      timeLimit: 60, gameStartTime: null, selectedDeck: null,
-    });
+      timeLimit: 60, gameStartTime: null, selectedDeck: prev.selectedDeck,
+    }));
   }, []);
 
   // ── Mission System Functions ──────────────────────────────────────────────

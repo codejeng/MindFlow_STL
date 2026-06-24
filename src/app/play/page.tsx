@@ -53,6 +53,7 @@ export default function PlayPage() {
     randomizeTurnOrder,
     areAllDoorsUnlocked,
     recordChannelPlay,
+    selectedDeck,
   } = useGame();
 
   const [playState, setPlayState]         = useState<PlayState>("turn");
@@ -71,11 +72,14 @@ export default function PlayPage() {
   const char = CHARACTERS.find((c) => c.id === currentPlayer?.characterId);
 
   const getCardPrefix = useCallback(() => {
-    if (!currentPlayer) return "U";
-    const map: Record<string, string> = { "ประถม": "P", "ม.ต้น": "M", "ม.ปลาย": "L", "ทั่วไป": "U" };
-    const p = map[currentPlayer.ageGroup] || "U";
-    return currentPlayer.role === "child" ? p : `${p}${p}`;
-  }, [currentPlayer]);
+    switch (selectedDeck) {
+      case "family": return "PC";
+      case "primary": return "PP";
+      case "secondary": return "SC";
+      case "university": return "SP";
+      default: return "PP";
+    }
+  }, [selectedDeck]);
 
   // Get the appropriate code prefix for non-life-event channels
   const getChannelCodePrefix = useCallback((channelId: string) => {
@@ -100,24 +104,25 @@ export default function PlayPage() {
   }, [players, currentPlayer]);
 
   const handleCodeSubmit = useCallback(() => {
-    if (!selectedNumberStr || selectedNumberStr.length !== 3) {
-      setInputError("กรุณาใส่ตัวเลข 3 หลัก");
+    const isLifeEvent = selectedChannel === "life-event";
+    const prefix = isLifeEvent ? getCardPrefix() : getChannelCodePrefix(selectedChannel ?? "");
+    const expectedDigits = ["PC", "PP", "SC", "SP"].includes(prefix) ? 2 : 3;
+
+    if (!selectedNumberStr || selectedNumberStr.length !== expectedDigits) {
+      setInputError(`กรุณาใส่ตัวเลข ${expectedDigits} หลัก`);
       return;
     }
 
-    const isLifeEvent = selectedChannel === "life-event";
-    const prefix = isLifeEvent ? getCardPrefix() : getChannelCodePrefix(selectedChannel ?? "");
     const fullCode = `${prefix}${selectedNumberStr}`;
 
     let q = getQuestionByCode(fullCode);
 
     // Fallback for life-event codes
     if (!q && isLifeEvent) {
-      if (prefix.length > 1) {
+      // Try with generic PC/PP/SC/SP prefix
+      q = getQuestionByCode(`${prefix}${selectedNumberStr}`);
+      if (!q && prefix.length > 1) {
         q = getQuestionByCode(`${prefix[0]}${selectedNumberStr}`);
-      }
-      if (!q) {
-        q = getQuestionByCode(`P${selectedNumberStr}`);
       }
     }
 

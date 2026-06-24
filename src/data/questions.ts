@@ -31,25 +31,91 @@ export interface Question {
   channel:  QuestionChannel;
 }
 
-// ─── Life Event Questions (P001-P015) ─────────────────────────────────────────
-// 15 emotional/social scenario questions for ประถม level
+// ─── Life Event Questions — Family Cards (PC01-PC18) ──────────────────────────
+// 18 family-focused reflection questions for the Family (ครอบครัว) deck
 
 const RAW_QUESTIONS: Omit<Question, "id">[] = [
-  { code: "P001", ageGroup: "ประถม", channel: "life-event", text: "คะแนนสอบออกมาแย่กว่าที่คาดไว้มาก คุณรู้สึกอย่างไรและจะจัดการกับสิ่งนี้อย่างไร?" },
-  { code: "P002", ageGroup: "ประถม", channel: "life-event", text: "เพื่อนสนิทโกรธและหยุดคุยกับคุณโดยไม่บอกเหตุผล คุณจะทำอย่างไร?" },
-  { code: "P003", ageGroup: "ประถม", channel: "life-event", text: "คุณทำโปรเจกต์กลุ่มเสร็จแล้ว แต่เพื่อนในกลุ่มไม่ช่วยเลย คุณรู้สึกอย่างไร?" },
-  { code: "P004", ageGroup: "ประถม", channel: "life-event", text: "ผู้ปกครองสัญญาจะพาไปเที่ยว แต่ต้องยกเลิกกะทันหัน คุณรู้สึกอย่างไร?" },
-  { code: "P005", ageGroup: "ประถม", channel: "life-event", text: "คุณกำลังนำเสนองานหน้าห้องและลืมสิ่งที่จะพูด คุณจะทำอย่างไร?" },
-  { code: "P006", ageGroup: "ประถม", channel: "life-event", text: "เพื่อนในห้องนินทาคุณและคุณได้ยินมาเอง คุณจะทำอย่างไร?" },
-  { code: "P007", ageGroup: "ประถม", channel: "life-event", text: "คุณอยากลองกิจกรรมใหม่ แต่กลัวว่าจะทำได้ไม่ดีเท่าคนอื่น คุณจะตัดสินใจอย่างไร?" },
-  { code: "P008", ageGroup: "ประถม", channel: "life-event", text: "คุณเห็นเพื่อนถูกแกล้งในโรงเรียน แต่กลัวว่าจะโดนแกล้งด้วยถ้าเข้าไปช่วย คุณจะทำอย่างไร?" },
-  { code: "P009", ageGroup: "ประถม", channel: "life-event", text: "คุณพยายามฝึกทักษะใหม่มาสามอาทิตย์แล้ว แต่ยังรู้สึกว่าไม่ก้าวหน้า คุณจะทำอย่างไร?" },
-  { code: "P010", ageGroup: "ประถม", channel: "life-event", text: "ผู้ปกครองคุณทะเลาะกันที่บ้านและคุณรู้สึกเครียดมาก คุณจะจัดการกับความรู้สึกนี้อย่างไร?" },
-  { code: "P011", ageGroup: "ประถม", channel: "life-event", text: "คุณถูกเลือกให้เป็นตัวแทนห้องในการแข่งขัน แต่รู้สึกไม่มั่นใจในตัวเอง คุณจะทำอย่างไร?" },
-  { code: "P012", ageGroup: "ประถม", channel: "life-event", text: "คุณอยากบอกเพื่อนว่าพฤติกรรมบางอย่างของเขาทำให้คุณเจ็บปวด แต่กลัวทะเลาะกัน คุณจะทำอย่างไร?" },
-  { code: "P013", ageGroup: "ประถม", channel: "life-event", text: "คุณทำผิดพลาดต่อหน้าเพื่อนหลายคน และรู้สึกอับอายมาก คุณจะรับมืออย่างไร?" },
-  { code: "P014", ageGroup: "ประถม", channel: "life-event", text: "คุณรู้สึกว่าตนเองไม่มีเพื่อนที่แท้จริงและรู้สึกโดดเดี่ยว คุณจะทำอย่างไร?" },
-  { code: "P015", ageGroup: "ประถม", channel: "life-event", text: "คุณกำลังช่วยเพื่อนแก้ปัญหา แต่เพื่อนไม่รับฟังคำแนะนำของคุณเลย คุณจะทำอย่างไร?" },
+  { code: "PC01", ageGroup: "ครอบครัว", channel: "life-event", text: "อะไรคือสิ่งที่ทำให้คุณภูมิใจในตัวเองมากที่สุด เพราะอะไร?" },
+  { code: "PC02", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้าคุณอธิบายตัวเองด้วย 3 คำ จะเป็นคำว่าอะไร?" },
+  { code: "PC03", ageGroup: "ครอบครัว", channel: "life-event", text: "คุณคิดว่าจุดแข็งที่สุดของคุณคืออะไร? เพราะอะไร?" },
+  { code: "PC04", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้ามีวันหยุดพิเศษ 1 วัน คุณอยากใช้เวลาทำอะไร?" },
+  { code: "PC05", ageGroup: "ครอบครัว", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากให้ผู้ใหญ่เข้าใจเกี่ยวกับตัวคุณมากขึ้น?" },
+  { code: "PC06", ageGroup: "ครอบครัว", channel: "life-event", text: "เวลาคุณรู้สึกเสียใจ คุณมักทำอย่างไร?" },
+  { code: "PC07", ageGroup: "ครอบครัว", channel: "life-event", text: "เรื่องไหนที่คุณไม่ค่อยกล้าพูดกับคนอื่น?" },
+  { code: "PC08", ageGroup: "ครอบครัว", channel: "life-event", text: "เคยมีเรื่องที่คุณอยากบอกใครสักคนแต่ไม่กล้าพูดไหม?" },
+  { code: "PC09", ageGroup: "ครอบครัว", channel: "life-event", text: "ช่วงนี้มีเรื่องอะไรที่อยู่ในใจคุณบ้าง?" },
+  { code: "PC10", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้าเพื่อนถูกล้อจนเสียใจ คุณจะทำอย่างไร?" },
+  { code: "PC11", ageGroup: "ครอบครัว", channel: "life-event", text: "มีใครที่คุณคิดว่าเขาเก่ง แต่ไม่ค่อยมีคนเห็นบ้าง?" },
+  { code: "PC12", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้าเพื่อนทำผิดพลาด คุณอยากพูดอะไรกับเขา?" },
+  { code: "PC13", ageGroup: "ครอบครัว", channel: "life-event", text: "คุณเคยช่วยใครแล้วรู้สึกดีมาก ๆ ไหม?" },
+  { code: "PC14", ageGroup: "ครอบครัว", channel: "life-event", text: "ช่วงเวลาไหนที่คุณมีความสุขที่สุดกับครอบครัว?" },
+  { code: "PC15", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้าวันนี้คุณขออะไรจากคนในบ้านได้ 1 อย่าง คุณจะขออะไร?" },
+  { code: "PC16", ageGroup: "ครอบครัว", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากทำกับครอบครัวมากขึ้น?" },
+  { code: "PC17", ageGroup: "ครอบครัว", channel: "life-event", text: "เวลาคุณมีปัญหา คุณอยากคุยกับใครก่อน?" },
+  { code: "PC18", ageGroup: "ครอบครัว", channel: "life-event", text: "ถ้าครอบครัวของคุณเป็นทีมกีฬา คุณคิดว่าตัวเองมีหน้าที่อะไรในทีม?" },
+
+  // ─── Life Event Questions — Primary Cards (PP01-PP18) ──────────────────────
+  // 18 reflection questions for the Primary (ประถมศึกษา) deck
+  { code: "PP01", ageGroup: "ประถม", channel: "life-event", text: "ตอนอายุเท่าลูก คุณเป็นเด็กแบบไหน?" },
+  { code: "PP02", ageGroup: "ประถม", channel: "life-event", text: "อะไรคือสิ่งที่คุณอยากให้ลูกเรียนรู้จากตัวคุณ? เพราะอะไร?" },
+  { code: "PP03", ageGroup: "ประถม", channel: "life-event", text: "เรื่องไหนที่คุณภูมิใจในตัวเองมากที่สุดในชีวิต?" },
+  { code: "PP04", ageGroup: "ประถม", channel: "life-event", text: "มีครั้งไหนที่ลูกสอนอะไรคุณโดยที่เขาไม่รู้ตัว?" },
+  { code: "PP05", ageGroup: "ประถม", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากบอกลูก แต่ยังไม่เคยพูด?" },
+  { code: "PP06", ageGroup: "ประถม", channel: "life-event", text: "อะไรคือความกังวลที่คุณมีต่อลูกมากที่สุด?" },
+  { code: "PP07", ageGroup: "ประถม", channel: "life-event", text: "มีเรื่องไหนที่คุณคิดว่าลูกอาจเข้าใจคุณผิด?" },
+  { code: "PP08", ageGroup: "ประถม", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากให้คนในครอบครัวรับฟังมากขึ้น?" },
+  { code: "PP09", ageGroup: "ประถม", channel: "life-event", text: "ถ้าลูกกำลังเสียใจ คุณคิดว่าคำพูดแบบไหนช่วยเขาได้มากที่สุด?" },
+  { code: "PP10", ageGroup: "ประถม", channel: "life-event", text: "มีครั้งไหนที่ลูกสอนอะไรคุณโดยที่เขาไม่รู้ตัว?" },
+  { code: "PP11", ageGroup: "ประถม", channel: "life-event", text: "คุณคิดว่าเด็กยุคนี้เจอเรื่องยากอะไรที่ต่างจากสมัยคุณ?" },
+  { code: "PP12", ageGroup: "ประถม", channel: "life-event", text: "ถ้าคุณกลับไปเป็นเด็กอีกครั้ง คุณอยากให้ผู้ใหญ่เข้าใจอะไรเกี่ยวกับคุณ?" },
+  { code: "PP13", ageGroup: "ประถม", channel: "life-event", text: "คุณคิดว่าลูกต้องการอะไรจากคุณมากกว่าที่คุณให้ในตอนนี้?" },
+  { code: "PP14", ageGroup: "ประถม", channel: "life-event", text: "ช่วงเวลาไหนที่คุณมีความสุขที่สุดกับลูก?" },
+  { code: "PP15", ageGroup: "ประถม", channel: "life-event", text: "ถ้ามีเวลาอยู่กับลูกเพิ่มอีก 1 ชั่วโมงต่อวัน คุณอยากทำอะไร?" },
+  { code: "PP16", ageGroup: "ประถม", channel: "life-event", text: "คุณอยากให้ลูกจดจำครอบครัวนี้ในแบบไหน?" },
+  { code: "PP17", ageGroup: "ประถม", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากทำร่วมกับลูกก่อนที่เขาจะโต?" },
+  { code: "PP18", ageGroup: "ประถม", channel: "life-event", text: "ถ้าครอบครัวของคุณเป็นทีมกีฬา คุณคิดว่าลูกมีบทบาทอะไรในทีม?" },
+
+  // ─── Life Event Questions — Secondary Cards (SC01-SC18) ──────────────────────
+  // 18 reflection questions for the Secondary (มัธยมศึกษา) deck
+  { code: "SC01", ageGroup: "มัธยม", channel: "life-event", text: "ตอนนี้ในกลุ่มเพื่อน คุณคิดว่าตัวเองเป็นคนแบบไหน? เพราะอะไร?" },
+  { code: "SC02", ageGroup: "มัธยม", channel: "life-event", text: "อะไรคือเหตุผลที่ทำให้คุณสนิทกับเพื่อนคนหนึ่งมากเป็นพิเศษ? เพราะอะไร?" },
+  { code: "SC03", ageGroup: "มัธยม", channel: "life-event", text: "คุณเคยรู้สึกว่าไม่เข้าพวกกับคนรอบตัวไหม? เพราะอะไร?" },
+  { code: "SC04", ageGroup: "มัธยม", channel: "life-event", text: "เวลาคุณมีปัญหากับเพื่อน คุณมักเป็นฝ่ายคุยก่อนหรือเงียบไป? เพราะอะไร?" },
+  { code: "SC05", ageGroup: "มัธยม", channel: "life-event", text: "ถ้าถามเพื่อนสนิท เขาจะบอกว่าคุณเป็นคนแบบไหน? เพราะอะไร?" },
+  { code: "SC06", ageGroup: "มัธยม", channel: "life-event", text: "ช่วงนี้เรื่องอะไรที่ทำให้คุณเครียดที่สุด? เพราะอะไร?" },
+  { code: "SC07", ageGroup: "มัธยม", channel: "life-event", text: "มีวิชาไหนที่คุณรู้สึกกดดันเป็นพิเศษ เพราะอะไร?" },
+  { code: "SC08", ageGroup: "มัธยม", channel: "life-event", text: "คุณเคยเปรียบเทียบตัวเองกับคนอื่นเรื่องอะไรบ้าง? เพราะอะไร?" },
+  { code: "SC09", ageGroup: "มัธยม", channel: "life-event", text: "อะไรคือสิ่งที่คนรอบตัวมักเข้าใจคุณผิด? เพราะอะไร?" },
+  { code: "SC10", ageGroup: "มัธยม", channel: "life-event", text: "มีเรื่องอะไรที่ผู้ใหญ่คิดว่าง่าย แต่สำหรับคุณมันยากมาก?" },
+  { code: "SC11", ageGroup: "มัธยม", channel: "life-event", text: "ตอนนี้คุณรู้สึกว่าตัวเองเป็นคนแบบที่อยากเป็นแล้วหรือยัง? เพราะอะไร?" },
+  { code: "SC12", ageGroup: "มัธยม", channel: "life-event", text: "ถ้าอีก 5 ปีข้างหน้า คุณอยากเห็นตัวเองเป็นแบบไหน? เพราะอะไร?" },
+  { code: "SC13", ageGroup: "มัธยม", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากลองทำ แต่ยังไม่กล้า? เพราะอะไร?" },
+  { code: "SC14", ageGroup: "มัธยม", channel: "life-event", text: "ถ้าพรุ่งนี้ไม่มีใครตัดสินคุณเลย คุณจะทำอะไรแตกต่างจากเดิม? เพราะอะไร?" },
+  { code: "SC15", ageGroup: "มัธยม", channel: "life-event", text: "คุณคิดว่าจุดแข็งที่คนอื่นอาจมองไม่เห็นในตัวคุณคืออะไร? เพราะอะไร?" },
+  { code: "SC16", ageGroup: "มัธยม", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากให้พ่อแม่เข้าใจเกี่ยวกับคุณมากขึ้น? เพราะอะไร?" },
+  { code: "SC17", ageGroup: "มัธยม", channel: "life-event", text: "เวลาที่คุณมีปัญหา คุณอยากให้พ่อแม่ทำอะไรมากที่สุด? เพราะอะไร?" },
+  { code: "SC18", ageGroup: "มัธยม", channel: "life-event", text: "มีเรื่องอะไรที่คุณแกล้งทำเป็นโอเค ทั้งที่จริงไม่โอเค?" },
+
+  // ─── Life Event Questions — University Cards (SP01-SP18) ──────────────────────
+  // 18 reflection questions for the University/General (นักศึกษา) deck
+  { code: "SP01", ageGroup: "นักศึกษา", channel: "life-event", text: "เมื่อคุณเป็นวัยรุ่น คุณเป็นคนแบบไหน?" },
+  { code: "SP02", ageGroup: "นักศึกษา", channel: "life-event", text: "อะไรคือบทเรียนสำคัญที่สุดที่คุณเรียนรู้จากชีวิตจนถึงวันนี้? เพราะอะไร?" },
+  { code: "SP03", ageGroup: "นักศึกษา", channel: "life-event", text: "คุณคิดว่าค่านิยมใดสำคัญที่สุดที่อยากส่งต่อให้ลูก? เพราะอะไร?" },
+  { code: "SP04", ageGroup: "นักศึกษา", channel: "life-event", text: "ถ้าย้อนเวลากลับไปได้ คุณอยากบอกอะไรกับตัวเองตอนอายุเท่าลูก?" },
+  { code: "SP05", ageGroup: "นักศึกษา", channel: "life-event", text: "มีเรื่องอะไรที่คุณกำลังพยายามพัฒนาตัวเองอยู่ในปัจจุบัน?" },
+  { code: "SP06", ageGroup: "นักศึกษา", channel: "life-event", text: "คุณคิดว่าจุดแข็งที่สุดของตัวเองในบทบาทพ่อแม่คืออะไร? เพราะอะไร?" },
+  { code: "SP07", ageGroup: "นักศึกษา", channel: "life-event", text: "เรื่องอะไรเกี่ยวกับลูกที่ทำให้คุณภูมิใจที่สุด? เพราะอะไร?" },
+  { code: "SP08", ageGroup: "นักศึกษา", channel: "life-event", text: "เรื่องอะไรเกี่ยวกับลูกที่คุณเป็นห่วงมากที่สุดในตอนนี้? เพราะอะไร?" },
+  { code: "SP09", ageGroup: "นักศึกษา", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากบอกลูก แต่ยังไม่เคยพูด?" },
+  { code: "SP10", ageGroup: "นักศึกษา", channel: "life-event", text: "ช่วงไหนที่คุณรู้สึกว่าการเป็นพ่อแม่เป็นเรื่องท้าทายที่สุด? เพราะอะไร?" },
+  { code: "SP11", ageGroup: "นักศึกษา", channel: "life-event", text: "มีครั้งไหนที่ลูกทำให้คุณมองโลกต่างไปจากเดิม? เพราะอะไร?" },
+  { code: "SP12", ageGroup: "นักศึกษา", channel: "life-event", text: "อะไรคือสิ่งที่คุณอยากให้ลูกเข้าใจเกี่ยวกับตัวคุณมากขึ้น? เพราะอะไร?" },
+  { code: "SP13", ageGroup: "นักศึกษา", channel: "life-event", text: "คุณคิดว่าลูกต้องการอะไรจากคุณมากที่สุดในช่วงวัยนี้? เพราะอะไร?" },
+  { code: "SP14", ageGroup: "นักศึกษา", channel: "life-event", text: "เวลาลูกมีปัญหา คุณอยากเป็นคนแบบไหนสำหรับเขา? เพราะอะไร?" },
+  { code: "SP15", ageGroup: "นักศึกษา", channel: "life-event", text: "คุณคิดว่าครอบครัวของคุณมีจุดแข็งเรื่องอะไร? เพราะอะไร?" },
+  { code: "SP16", ageGroup: "นักศึกษา", channel: "life-event", text: "มีเรื่องอะไรที่คุณอยากทำร่วมกับลูกก่อนที่เขาจะโตเป็นผู้ใหญ่? เพราะอะไร?" },
+  { code: "SP17", ageGroup: "นักศึกษา", channel: "life-event", text: "คุณคิดว่าวัยรุ่นในปัจจุบันต้องเผชิญแรงกดดันอะไรที่ต่างจากสมัยคุณ?" },
+  { code: "SP18", ageGroup: "นักศึกษา", channel: "life-event", text: "ถ้าคุณเป็นลูกของตัวเอง คุณคิดว่าคุณอยากให้พ่อแม่คนนี้ปรับอะไรบ้าง?" },
 
   // ─── Good Moments Questions (GM001-GM005) ───────────────────────────────────
   { code: "GM001", ageGroup: "all", channel: "good-moments", text: "เล่าเรื่องที่คุณภูมิใจที่สุดในสัปดาห์นี้" },
