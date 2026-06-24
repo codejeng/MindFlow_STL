@@ -96,11 +96,15 @@ export default function Home() {
         <Box component={motion.div}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 0.55, delay: 0.22 }}
-          sx={{ textAlign: "center", mb: 4 }}>
-          <Typography sx={{ color: "#7A6248", fontSize: "1.2rem", lineHeight: 1.5, fontWeight: 700 }}>
-            เกมแห่งการเข้าใจตนเอง
-            <br />
-            และกันและกัน
+          sx={{ textAlign: "center", mb: 4, px: 1 }}>
+          <Typography sx={{ color: "#7A6248", fontSize: "1.15rem", lineHeight: 1.4, fontWeight: 800, mb: 1 }}>
+            The Path to Understanding Ecosystem
+          </Typography>
+          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
+            ที่สร้างโอกาสให้เด็กและเยาวชน<br />เข้าถึงสุขภาวะทางใจที่ดี
+          </Typography>
+          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
+            ผ่านจุดเริ่มต้นเล็กๆ จากการเล่น<br />การพูดคุย และความเข้าใจ
           </Typography>
         </Box>
 
