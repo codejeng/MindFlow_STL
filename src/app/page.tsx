@@ -139,7 +139,7 @@ export default function Home() {
 
           {/* คู่มือการเล่น */}
           <Button variant="contained" fullWidth size="large"
-            onClick={() => router.push("")}
+            onClick={() => router.push("/guide")}
             component={motion.button}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
