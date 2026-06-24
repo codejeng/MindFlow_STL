@@ -10,6 +10,7 @@ import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import { getExpertById, MOCK_REVIEWS } from "@/data/experts";
 
 const BG = "#FAF5EC";
@@ -134,7 +135,7 @@ export default function ExpertDetailPage({ params }: { params: Promise<{ id: str
             </Box>
             {expert.location && (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Typography sx={{ fontSize: "0.8rem" }}>📍</Typography>
+                <LocationOnOutlinedIcon sx={{ fontSize: "0.95rem", color: PRIMARY }} />
                 <Typography variant="caption" sx={{ color: "#5A4A36", fontWeight: 500 }}>{expert.location}</Typography>
               </Box>
             )}
@@ -149,27 +150,6 @@ export default function ExpertDetailPage({ params }: { params: Promise<{ id: str
           <Typography variant="body2" sx={{ color: "#5A4A36", lineHeight: 1.85 }}>{expert.about}</Typography>
         </Box>
 
-        {/* ── Price ── */}
-        <Box component={motion.div} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          sx={{
-            background: `linear-gradient(135deg,${PRIMARY}14,${PRIMARY}08)`,
-            borderRadius: 2, p: 2.5, mb: 2.5,
-            border: `1.5px solid ${PRIMARY}25`,
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-          }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: "#6B5B45" }}>ราคาต่อครั้ง</Typography>
-            <Typography fontWeight={800} sx={{ color: PRIMARY, fontSize: "1.5rem", lineHeight: 1.2 }}>
-              {expert.price.toLocaleString()}.-
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            {expert.formats.map((f) => (
-              <Chip key={f} label={f === "online" ? "ออนไลน์" : "ตัวต่อตัว"} size="small"
-                sx={{ backgroundColor: "white", color: PRIMARY, border: `1px solid ${PRIMARY}40`, fontWeight: 600 }} />
-            ))}
-          </Box>
-        </Box>
 
         {/* ── Reviews ── */}
         {reviews.length > 0 && (

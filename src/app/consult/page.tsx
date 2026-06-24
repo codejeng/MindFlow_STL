@@ -7,6 +7,15 @@ import { useRouter } from "next/navigation";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import LocalHospitalRoundedIcon from "@mui/icons-material/LocalHospitalRounded";
+import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import WorkRoundedIcon from "@mui/icons-material/WorkRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { EXPERTS, EXPERT_CATEGORIES, searchExperts, type Expert } from "@/data/experts";
 
 const BG = "#FAF5EC";
@@ -21,8 +30,24 @@ const CATEGORY_COLORS = [
   { bg: "#E8DAEF", icon: "#7D3C98" },
   { bg: "#D6EAF8", icon: "#1F618D" },
   { bg: "#D5F5E3", icon: "#1A5276" },
+  { bg: "#D5F5E3", icon: "#1A5276" },
   { bg: "#FDEBD0", icon: "#784212" },
 ];
+
+const getCategoryIcon = (id: string, color: string) => {
+  const props = { sx: { fontSize: "2rem", color } };
+  switch (id) {
+    case "stress": return <PsychologyRoundedIcon {...props} />;
+    case "social": return <PeopleAltRoundedIcon {...props} />;
+    case "health": return <LocalHospitalRoundedIcon {...props} />;
+    case "relationship": return <VolunteerActivismRoundedIcon {...props} />;
+    case "children": return <ChildCareRoundedIcon {...props} />;
+    case "work": return <WorkRoundedIcon {...props} />;
+    case "growth": return <TrendingUpRoundedIcon {...props} />;
+    case "family": return <FamilyRestroomRoundedIcon {...props} />;
+    default: return <StarRoundedIcon {...props} />;
+  }
+};
 
 export default function ConsultPage() {
   const router = useRouter();
@@ -60,7 +85,7 @@ export default function ConsultPage() {
           boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
           border: "1.5px solid rgba(180,155,120,0.15)",
         }}>
-          <Box sx={{ color: "#B0A090", fontSize: "1rem", display: "flex" }}>🔍</Box>
+          <SearchRoundedIcon sx={{ color: "#B0A090", fontSize: "1.2rem" }} />
           <InputBase fullWidth placeholder="ค้นหาด้วยคีย์เวิร์ด หรือปัญหาที่คุณสนใจ..."
             value={query} onChange={(e) => { setQuery(e.target.value); setActiveCategory(null); }}
             sx={{ fontSize: "0.88rem", color: "#374151" }} />
@@ -93,7 +118,7 @@ export default function ConsultPage() {
                         transition: "transform 0.2s",
                         "&:hover": { transform: "scale(1.06)" },
                       }}>
-                        {cat.icon}
+                        {getCategoryIcon(cat.id, c.icon)}
                       </Box>
                       <Typography variant="caption" sx={{
                         color: "#5A4A36", fontWeight: 600, textAlign: "center",
@@ -111,7 +136,7 @@ export default function ConsultPage() {
                 แนะนำสำหรับคุณ
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {EXPERTS.slice(0, 2).map((e, i) => (
+                {EXPERTS.slice(0, 3).map((e, i) => (
                   <ExpertCard key={e.id} expert={e} index={i} onClick={() => router.push(`/consult/${e.id}`)} />
                 ))}
               </Box>
@@ -134,7 +159,7 @@ export default function ConsultPage() {
               </Box>
               {results.length === 0 ? (
                 <Box sx={{ textAlign: "center", py: 8 }}>
-                  <Typography sx={{ fontSize: "2.5rem", mb: 1 }}>🔍</Typography>
+                  <SearchRoundedIcon sx={{ fontSize: "3rem", mb: 1, color: "#9CA3AF" }} />
                   <Typography fontWeight={600} sx={{ color: "#374151" }}>ไม่พบผลลัพธ์</Typography>
                   <Typography variant="body2" color="text.secondary">ลองค้นหาด้วยคำอื่น</Typography>
                 </Box>
@@ -170,8 +195,9 @@ function ExpertCard({ expert: e, index, onClick }: { expert: Expert; index: numb
       }}>
       {/* Badge */}
       {e.badge && (
-        <Box sx={{ px: 2, py: 0.6, backgroundColor: `${ACCENT}18`, borderBottom: `1px solid ${ACCENT}20` }}>
-          <Typography variant="caption" fontWeight={700} sx={{ color: ACCENT }}>⭐ {e.badge}</Typography>
+        <Box sx={{ px: 2, py: 0.6, backgroundColor: `${ACCENT}18`, borderBottom: `1px solid ${ACCENT}20`, display: "flex", alignItems: "center", gap: 0.5 }}>
+          <StarRoundedIcon sx={{ color: ACCENT, fontSize: "0.85rem" }} />
+          <Typography variant="caption" fontWeight={700} sx={{ color: ACCENT }}>{e.badge}</Typography>
         </Box>
       )}
       <Box sx={{ display: "flex", gap: 2, p: 2.5 }}>
@@ -223,12 +249,6 @@ function ExpertCard({ expert: e, index, onClick }: { expert: Expert; index: numb
                 <Typography variant="caption" sx={{ color: PRIMARY, fontWeight: 600, fontSize: "0.7rem" }}>{s}</Typography>
               </Box>
             ))}
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Typography fontWeight={800} sx={{ color: "#2C2218", fontSize: "0.9rem" }}>
-              {e.price.toLocaleString()}.-
-              <Box component="span" sx={{ color: "#9C8B76", fontWeight: 400, fontSize: "0.75rem" }}> / ครั้ง</Box>
-            </Typography>
           </Box>
         </Box>
       </Box>
