@@ -68,7 +68,7 @@ export default function ConsultPage() {
         borderBottom: "1px solid rgba(180,155,120,0.12)",
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-          <IconButton size="small" onClick={() => router.back()}
+          <IconButton size="small" onClick={() => router.push("/")}
             sx={{ backgroundColor: "white", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", mr: 0.5 }}>
             <ArrowBackRoundedIcon sx={{ fontSize: "1.1rem", color: "#4B3D2E" }} />
           </IconButton>
