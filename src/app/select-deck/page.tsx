@@ -13,8 +13,9 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
-const BG      = "#FAF5EC";
-const PRIMARY = "#4E7B5E";
+const BG_TOP  = "#FDFBF7"; // Return to warm cream
+const BG_BOT  = "#F5EFE6"; 
+const PRIMARY = "#539E8A"; // Mint Green / Teal from Logo
 
 interface DeckOption {
   id: DeckCategory;
@@ -65,19 +66,19 @@ export default function SelectDeckPage() {
 
   return (
     <PageTransition>
-      <Box sx={{ minHeight: "100vh", background: BG, pb: 14, position: "relative", overflowX: "hidden" }}>
+      <Box sx={{ minHeight: "100vh", background: `linear-gradient(170deg, ${BG_TOP} 0%, ${BG_BOT} 100%)`, pb: 14, position: "relative", overflowX: "hidden" }}>
         <CSSParticles />
         <Container maxWidth="sm" sx={{ pt: 4, position: "relative", zIndex: 1 }}>
 
           {/* Back */}
           <Box sx={{ mb: 2 }}>
             <Button
-              onClick={() => router.back()}
+              onClick={() => router.push("/")}
               startIcon={<ArrowBackRoundedIcon />}
               sx={{
                 color: "#7A6248", textTransform: "none", fontWeight: 600,
                 borderRadius: 2, px: 1.5, py: 0.75,
-                "&:hover": { backgroundColor: `${PRIMARY}12` },
+                "&:hover": { backgroundColor: `${PRIMARY}22` },
               }}
             >
               ย้อนกลับ
@@ -273,7 +274,7 @@ export default function SelectDeckPage() {
                   boxShadow: "none",
                   transition: "all 0.3s",
                   "&:hover": { 
-                    background: chosen ? "#3E6B4E" : "#DED5C5",
+                    background: chosen ? "#448674" : "#DED5C5",
                     boxShadow: "none"
                   },
                 }}

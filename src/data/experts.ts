@@ -77,7 +77,7 @@ export const EXPERTS: Expert[] = [
     rating: 5.0,
     reviewCount: 204,
     price: 1500,
-    image: "/consultant/Consultant-3.jpg",
+    image: "/consultant/Consultant-3.png",
     experience: 20,
     languages: ["ไทย"],
     formats: ["online", "onsite"],

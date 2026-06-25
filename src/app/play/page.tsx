@@ -72,14 +72,21 @@ export default function PlayPage() {
   const char = CHARACTERS.find((c) => c.id === currentPlayer?.characterId);
 
   const getCardPrefix = useCallback(() => {
+    const isChild = currentPlayer?.role === "child";
+
+    if (selectedDeck === "primary") {
+      return isChild ? "PC" : "PP";
+    } else if (selectedDeck === "secondary") {
+      return isChild ? "SC" : "SP";
+    }
+
+    // Legacy fallbacks
     switch (selectedDeck) {
       case "family": return "PC";
-      case "primary": return "PP";
-      case "secondary": return "SC";
       case "university": return "SP";
-      default: return "PP";
+      default: return isChild ? "PC" : "PP";
     }
-  }, [selectedDeck]);
+  }, [selectedDeck, currentPlayer?.role]);
 
   // Get the appropriate code prefix for non-life-event channels
   const getChannelCodePrefix = useCallback((channelId: string) => {

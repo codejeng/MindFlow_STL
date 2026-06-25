@@ -29,13 +29,13 @@ const DECK_ROLES: Record<DeckCategory, RoleOption[]> = {
     { value: "friend",  label: "ปู่ย่าตายาย" },
   ],
   primary: [
-    { value: "child",   label: "นักเรียน" },
-    { value: "parent",  label: "ครู"       },
+    { value: "child",   label: "ลูก / นักเรียน" },
+    { value: "parent",  label: "ผู้ปกครอง / ครู" },
     { value: "friend",  label: "เพื่อน"    },
   ],
   secondary: [
-    { value: "child",   label: "นักเรียน" },
-    { value: "parent",  label: "ครู"       },
+    { value: "child",   label: "ลูก / นักเรียน" },
+    { value: "parent",  label: "ผู้ปกครอง / ครู" },
     { value: "friend",  label: "เพื่อน"    },
   ],
   university: [

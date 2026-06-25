@@ -14,10 +14,10 @@ import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded
 import FeedbackFAB from "@/components/common/FeedbackFAB";
 import CSSParticles from "@/components/common/CSSParticles";
 
-const PRIMARY = "#4E7B5E";
-const ACCENT  = "#CF6B3E";
-const BG_TOP  = "#FAF0DC";
-const BG_BOT  = "#EDE0CA";
+const PRIMARY = "#539E8A"; // Mint Green / Teal from Logo
+const ACCENT  = "#F7B2B7"; // Soft Pastel Pink for Secondary
+const BG_TOP  = "#FDFBF7"; // Return to warm cream for pastel theme
+const BG_BOT  = "#F5EFE6";
 
 export default function Home() {
   const router = useRouter();
@@ -97,14 +97,14 @@ export default function Home() {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 0.55, delay: 0.22 }}
           sx={{ textAlign: "center", mb: 4, px: 1 }}>
-          <Typography sx={{ color: "#7A6248", fontSize: "1.15rem", lineHeight: 1.4, fontWeight: 800, mb: 1 }}>
+          <Typography sx={{ color: "#D1868B", fontSize: "1.15rem", lineHeight: 1.4, fontWeight: 800, mb: 1 }}>
             The Path to Understanding Ecosystem
           </Typography>
           <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
-            ที่สร้างโอกาสให้เด็กและเยาวชน<br />เข้าถึงสุขภาวะทางใจที่ดี
+            ที่สร้างโอกาสให้เด็กและเยาวชน
           </Typography>
           <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
-            ผ่านจุดเริ่มต้นเล็กๆ จากการเล่น<br />การพูดคุย และความเข้าใจ
+            ผ่านจุดเริ่มต้นเล็กๆ จากการเล่น
           </Typography>
         </Box>
 
@@ -127,15 +127,16 @@ export default function Home() {
               py: 2, px: 3, borderRadius: "20px",
               fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
-              background: `linear-gradient(135deg, #4E7B5E 0%, #689E79 100%)`,
-              boxShadow: "0 8px 30px rgba(78,123,94,0.35)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: `linear-gradient(135deg, ${PRIMARY} 0%, #68B4A1 100%)`,
+              color: "#FFFFFF",
+              boxShadow: `0 8px 30px rgba(83,158,138,0.35)`,
+              border: "1px solid rgba(255,255,255,0.25)",
               letterSpacing: "0.02em",
-              "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
-              "& .MuiButton-endIcon": { ml: "auto" },
+              "& .MuiButton-startIcon": { mr: 1.5, ml: 0, color: "#FFFFFF" },
+              "& .MuiButton-endIcon": { ml: "auto", color: "#FFFFFF" },
               "&:hover": { 
-                background: `linear-gradient(135deg,#3E6B4E 0%,#4E7B5E 100%)`,
-                boxShadow: "0 10px 35px rgba(78,123,94,0.45)",
+                background: `linear-gradient(135deg, #448674 0%, ${PRIMARY} 100%)`,
+                boxShadow: `0 10px 35px rgba(83,158,138,0.45)`,
               },
             }}>
             เล่นเกม
@@ -156,7 +157,7 @@ export default function Home() {
               background: "rgba(255,255,255,0.9)",
               color: "#5A4A36",
               boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
-              border: "1px solid rgba(180,155,120,0.3)",
+              border: "1px solid rgba(247,178,183,0.4)",
               backdropFilter: "blur(10px)",
               letterSpacing: "0.02em",
               "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
@@ -164,7 +165,7 @@ export default function Home() {
               "&:hover": { 
                 background: "#FFFFFF",
                 boxShadow: "0 8px 25px rgba(0,0,0,0.09)",
-                borderColor: "rgba(180,155,120,0.5)",
+                borderColor: "rgba(247,178,183,0.8)",
               },
             }}>
             คู่มือการเล่น
@@ -182,15 +183,16 @@ export default function Home() {
               py: 2, px: 3, borderRadius: "20px",
               fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
-              background: `linear-gradient(135deg, #CF6B3E 0%, #DF7E52 100%)`,
-              boxShadow: "0 8px 30px rgba(207,107,62,0.35)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #FAD7D9 100%)`,
+              color: "#8E5F63",
+              boxShadow: `0 8px 30px rgba(247,178,183,0.4)`,
+              border: "1px solid rgba(255,255,255,0.6)",
               letterSpacing: "0.02em",
-              "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
-              "& .MuiButton-endIcon": { ml: "auto" },
+              "& .MuiButton-startIcon": { mr: 1.5, ml: 0, color: "#8E5F63" },
+              "& .MuiButton-endIcon": { ml: "auto", color: "#8E5F63" },
               "&:hover": { 
-                background: `linear-gradient(135deg,#BF5B2E 0%,#CF6B3E 100%)`,
-                boxShadow: "0 10px 35px rgba(207,107,62,0.45)",
+                background: `linear-gradient(135deg, #F29FA5 0%, ${ACCENT} 100%)`,
+                boxShadow: `0 10px 35px rgba(247,178,183,0.5)`,
               },
             }}>
             ปรึกษาผู้เชี่ยวชาญ
