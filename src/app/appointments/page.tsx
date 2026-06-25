@@ -4,6 +4,11 @@ import { Box, Typography, Container, Chip, Button } from "@mui/material";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { MOCK_APPOINTMENTS, getExpertById } from "@/data/experts";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import ComputerRoundedIcon from "@mui/icons-material/ComputerRounded";
+import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
+import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
+import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 
 const BG = "#FDF6EE";
 const PRIMARY = "#5A7A65";
@@ -46,7 +51,7 @@ export default function AppointmentsPage() {
       <Container maxWidth="sm" sx={{ pt: 3 }}>
         {items.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography sx={{ fontSize: "3rem", mb: 2 }}>📅</Typography>
+            <CalendarMonthRoundedIcon sx={{ fontSize: "3.5rem", color: "#D1D5DB", mb: 2 }} />
             <Typography fontWeight={600} sx={{ color: "#374151", mb: 1 }}>ยังไม่มีการนัดหมาย</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               ค้นหาผู้เชี่ยวชาญและนัดหมายได้เลย
@@ -68,47 +73,59 @@ export default function AppointmentsPage() {
                   transition={{ delay: i * 0.08 }}
                   sx={{ backgroundColor: "white", borderRadius: 4, p: 2.5,
                     boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid #F0E8DC" }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 600 }}>
-                        📅 {appt.date}
-                      </Typography>
-                      <Typography fontWeight={700} sx={{ color: "#1F2937" }}>{appt.time}</Typography>
-                    </Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
+                    <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 700, display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <CalendarMonthRoundedIcon sx={{ fontSize: "1.1rem" }} /> {appt.date}
+                    </Typography>
                     <Chip
                       label={appt.status === "confirmed" ? "ยืนยันแล้ว" : "เสร็จสิ้น"}
                       size="small"
                       sx={{
                         backgroundColor: appt.status === "confirmed" ? "#D1FAE5" : "#F3F4F6",
                         color: appt.status === "confirmed" ? "#065F46" : "#6B7280",
-                        fontWeight: 700, fontSize: "0.72rem",
+                        fontWeight: 800, fontSize: "0.75rem", px: 0.5
                       }}
                     />
                   </Box>
+                  <Typography fontWeight={900} sx={{ color: "#1F2937", fontSize: "1.15rem", mb: 2.5 }}>
+                    {appt.time} น.
+                  </Typography>
 
-                  <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", mb: 2 }}>
-                    <Box sx={{ width: 44, height: 44, borderRadius: "50%",
-                      backgroundColor: PRIMARY + "20", display: "flex", alignItems: "center",
-                      justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>
-                      {expert.name.charAt(0)}
+                  <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+                    <Box sx={{ width: 48, height: 48, borderRadius: "50%",
+                      backgroundColor: "#F3F4F6", display: "flex", alignItems: "center",
+                      justifyContent: "center", fontSize: "1.25rem", fontWeight: 800, color: "#374151", flexShrink: 0 }}>
+                      {expert.name.charAt(2)}
                     </Box>
                     <Box>
-                      <Typography fontWeight={700} sx={{ color: "#1F2937", fontSize: "0.95rem" }}>
+                      <Typography fontWeight={800} sx={{ color: "#1F2937", fontSize: "1rem" }}>
                         {expert.name}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#6B7280" }}>{expert.title}</Typography>
                     </Box>
                   </Box>
 
-                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
-                    <Chip label={`💻 ${appt.format}`} size="small"
-                      sx={{ fontSize: "0.72rem", backgroundColor: "#F0F9F4", color: PRIMARY }} />
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2.5 }}>
+                    <Chip 
+                      icon={appt.format === "online" ? <ComputerRoundedIcon sx={{ fontSize: "1rem !important", color: "inherit" }} /> : <BusinessRoundedIcon sx={{ fontSize: "1rem !important", color: "inherit" }} />}
+                      label={appt.format === "online" ? "ออนไลน์" : "ตัวต่อตัว"} 
+                      size="small"
+                      sx={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "#F0F9F4", color: PRIMARY, "& .MuiChip-icon": { color: PRIMARY } }} 
+                    />
                     {appt.location && (
-                      <Chip label={`📍 ${appt.location}`} size="small"
-                        sx={{ fontSize: "0.72rem", backgroundColor: "#FEF6E5", color: "#C07A1A" }} />
+                      <Chip 
+                        icon={<LocationOnRoundedIcon sx={{ fontSize: "1rem !important", color: "inherit" }} />}
+                        label={appt.location} 
+                        size="small"
+                        sx={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "#FEF6E5", color: "#C07A1A", "& .MuiChip-icon": { color: "#C07A1A" } }} 
+                      />
                     )}
-                    <Chip label={`💰 ${appt.price.toLocaleString()}.-`} size="small"
-                      sx={{ fontSize: "0.72rem", backgroundColor: "#F3F4F6", color: "#374141" }} />
+                    <Chip 
+                      icon={<PaymentsRoundedIcon sx={{ fontSize: "1rem !important", color: "inherit" }} />}
+                      label={`${appt.price.toLocaleString()}.-`} 
+                      size="small"
+                      sx={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "#F3F4F6", color: "#374151", "& .MuiChip-icon": { color: "#374151" } }} 
+                    />
                   </Box>
 
                   {appt.status === "confirmed" && (
