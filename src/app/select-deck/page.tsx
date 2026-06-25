@@ -12,6 +12,8 @@ import CSSParticles from "@/components/common/CSSParticles";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 const BG_TOP  = "#FDFBF7"; // Return to warm cream
 const BG_BOT  = "#F5EFE6"; 
@@ -283,6 +285,38 @@ export default function SelectDeckPage() {
               </Button>
             </Box>
           </Box>
+
+          {/* คู่มือการเล่น (Guide Button) */}
+          <Box sx={{ mt: 3 }}>
+            <Button variant="contained" fullWidth size="large"
+              onClick={() => router.push("/guide")}
+              component={motion.button}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              startIcon={<ImportContactsRoundedIcon sx={{ fontSize: "1.3rem !important", color: "#A88D6F" }} />}
+              endIcon={<ChevronRightRoundedIcon sx={{ fontSize: "1.5rem !important", color: "#A88D6F", opacity: 0.7 }} />}
+              sx={{
+                py: 2, px: 3, borderRadius: "20px",
+                fontSize: "1.05rem", fontWeight: 800, textTransform: "none",
+                justifyContent: "space-between",
+                background: "rgba(255,255,255,0.9)",
+                color: "#5A4A36",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+                border: "1px solid rgba(180,155,120,0.18)",
+                backdropFilter: "blur(10px)",
+                letterSpacing: "0.02em",
+                "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
+                "& .MuiButton-endIcon": { ml: "auto" },
+                "&:hover": { 
+                  background: "#FFFFFF",
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.09)",
+                  borderColor: "rgba(180,155,120,0.3)",
+                },
+              }}>
+              คู่มือการเล่น
+            </Button>
+          </Box>
+
         </Container>
       </Box>
     </PageTransition>

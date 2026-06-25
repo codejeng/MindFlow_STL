@@ -14,8 +14,8 @@ import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded
 import FeedbackFAB from "@/components/common/FeedbackFAB";
 import CSSParticles from "@/components/common/CSSParticles";
 
-const PRIMARY = "#539E8A"; // Mint Green / Teal from Logo
-const ACCENT  = "#F7B2B7"; // Soft Pastel Pink for Secondary
+const PRIMARY = "#4E7B5E"; // Old brand green
+const ACCENT  = "#CF6B3E"; // Warm orange accent
 const BG_TOP  = "#FDFBF7"; // Return to warm cream for pastel theme
 const BG_BOT  = "#F5EFE6";
 
@@ -100,12 +100,42 @@ export default function Home() {
           <Typography sx={{ color: "#D1868B", fontSize: "1.15rem", lineHeight: 1.4, fontWeight: 800, mb: 1 }}>
             The Path to Understanding Ecosystem
           </Typography>
-          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
+          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 400 }}>
             ที่สร้างโอกาสให้เด็กและเยาวชน
           </Typography>
-          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 500 }}>
+          <Typography sx={{ color: "#7A6248", fontSize: "1rem", lineHeight: 1.6, fontWeight: 400 }}>
             ผ่านจุดเริ่มต้นเล็กๆ จากการเล่น
           </Typography>
+        </Box>
+
+        {/* Hero Image */}
+        <Box component={motion.div}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          sx={{
+            width: "100%",
+            maxWidth: 380,
+            mb: 5,
+            px: 1,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            src="/images/hero-board.png"
+            alt="Mindflow Board Game"
+            width={1024}
+            height={736}
+            style={{ 
+              objectFit: "contain", 
+              width: "100%", 
+              height: "auto",
+              borderRadius: "16px",
+              boxShadow: "0 12px 35px rgba(100,70,30,0.12)",
+            }}
+            priority
+          />
         </Box>
 
         {/* Buttons */}
@@ -127,49 +157,22 @@ export default function Home() {
               py: 2, px: 3, borderRadius: "20px",
               fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
-              background: `linear-gradient(135deg, ${PRIMARY} 0%, #68B4A1 100%)`,
+              background: `linear-gradient(135deg, ${PRIMARY} 0%, #7AA880 100%)`,
               color: "#FFFFFF",
-              boxShadow: `0 8px 30px rgba(83,158,138,0.35)`,
+              boxShadow: `0 8px 30px rgba(78,123,94,0.35)`,
               border: "1px solid rgba(255,255,255,0.25)",
               letterSpacing: "0.02em",
               "& .MuiButton-startIcon": { mr: 1.5, ml: 0, color: "#FFFFFF" },
               "& .MuiButton-endIcon": { ml: "auto", color: "#FFFFFF" },
               "&:hover": { 
-                background: `linear-gradient(135deg, #448674 0%, ${PRIMARY} 100%)`,
-                boxShadow: `0 10px 35px rgba(83,158,138,0.45)`,
+                background: `linear-gradient(135deg, #3C634A 0%, ${PRIMARY} 100%)`,
+                boxShadow: `0 10px 35px rgba(78,123,94,0.45)`,
               },
             }}>
             เล่นเกม
           </Button>
 
-          {/* คู่มือการเล่น */}
-          <Button variant="contained" fullWidth size="large"
-            onClick={() => router.push("/guide")}
-            component={motion.button}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            startIcon={<ImportContactsRoundedIcon sx={{ fontSize: "1.3rem !important", color: "#A88D6F" }} />}
-            endIcon={<ChevronRightRoundedIcon sx={{ fontSize: "1.5rem !important", color: "#A88D6F", opacity: 0.7 }} />}
-            sx={{
-              py: 2, px: 3, borderRadius: "20px",
-              fontSize: "1.05rem", fontWeight: 800, textTransform: "none",
-              justifyContent: "space-between",
-              background: "rgba(255,255,255,0.9)",
-              color: "#5A4A36",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
-              border: "1px solid rgba(247,178,183,0.4)",
-              backdropFilter: "blur(10px)",
-              letterSpacing: "0.02em",
-              "& .MuiButton-startIcon": { mr: 1.5, ml: 0 },
-              "& .MuiButton-endIcon": { ml: "auto" },
-              "&:hover": { 
-                background: "#FFFFFF",
-                boxShadow: "0 8px 25px rgba(0,0,0,0.09)",
-                borderColor: "rgba(247,178,183,0.8)",
-              },
-            }}>
-            คู่มือการเล่น
-          </Button>
+
 
           {/* ปรึกษาผู้เชี่ยวชาญ */}
           <Button variant="contained" fullWidth size="large"
@@ -183,16 +186,16 @@ export default function Home() {
               py: 2, px: 3, borderRadius: "20px",
               fontSize: "1.1rem", fontWeight: 800, textTransform: "none",
               justifyContent: "space-between",
-              background: `linear-gradient(135deg, ${ACCENT} 0%, #FAD7D9 100%)`,
-              color: "#8E5F63",
-              boxShadow: `0 8px 30px rgba(247,178,183,0.4)`,
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #E08A63 100%)`,
+              color: "#FFFFFF",
+              boxShadow: `0 8px 30px rgba(207,107,62,0.35)`,
               border: "1px solid rgba(255,255,255,0.6)",
               letterSpacing: "0.02em",
-              "& .MuiButton-startIcon": { mr: 1.5, ml: 0, color: "#8E5F63" },
-              "& .MuiButton-endIcon": { ml: "auto", color: "#8E5F63" },
+              "& .MuiButton-startIcon": { mr: 1.5, ml: 0, color: "#FFFFFF" },
+              "& .MuiButton-endIcon": { ml: "auto", color: "#FFFFFF" },
               "&:hover": { 
-                background: `linear-gradient(135deg, #F29FA5 0%, ${ACCENT} 100%)`,
-                boxShadow: `0 10px 35px rgba(247,178,183,0.5)`,
+                background: `linear-gradient(135deg, #B5582F 0%, ${ACCENT} 100%)`,
+                boxShadow: `0 10px 35px rgba(207,107,62,0.45)`,
               },
             }}>
             ปรึกษาผู้เชี่ยวชาญ

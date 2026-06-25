@@ -4,6 +4,8 @@ import { Box, Typography, Container, Button } from "@mui/material";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getExpertById } from "@/data/experts";
+import ComputerRoundedIcon from "@mui/icons-material/ComputerRounded";
+import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
 
 const BG = "#FDF6EE";
 const PRIMARY = "#5A7A65";
@@ -99,7 +101,9 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
                     border: `1.5px solid ${active ? PRIMARY : "#EDE3D8"}`,
                     transition: "all 0.2s",
                   }}>
-                  <Typography sx={{ fontSize: "1.2rem", mb: 0.25 }}>{f === "online" ? "💻" : "🏢"}</Typography>
+                  <Box sx={{ fontSize: "1.5rem", mb: 0.5, color: active ? PRIMARY : "#6B7280" }}>
+                    {f === "online" ? <ComputerRoundedIcon fontSize="inherit" /> : <BusinessRoundedIcon fontSize="inherit" />}
+                  </Box>
                   <Typography fontWeight={600} sx={{ color: active ? PRIMARY : "#374151", fontSize: "0.85rem" }}>
                     {f === "online" ? "ออนไลน์" : "ตัวต่อตัว (คลิก)"}
                   </Typography>

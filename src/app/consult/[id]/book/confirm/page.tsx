@@ -5,6 +5,12 @@ import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getExpertById } from "@/data/experts";
 import { Suspense } from "react";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import ComputerRoundedIcon from "@mui/icons-material/ComputerRounded";
+import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
+import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 
 const PRIMARY = "#5A7A65";
 
@@ -33,7 +39,7 @@ function ConfirmContent({ id }: { id: string }) {
               backgroundColor: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: `0 0 0 16px #D1FAE540`,
             }}>
-            <Typography sx={{ fontSize: "2.5rem" }}>✅</Typography>
+            <CheckCircleRoundedIcon sx={{ fontSize: "3.5rem", color: "#10B981" }} />
           </Box>
           <Typography variant="h5" fontWeight={800} sx={{ color: "#1F2937", mb: 0.5 }}>สรุปการนัดหมาย</Typography>
           <Typography variant="body2" color="text.secondary">ระบบได้บันทึกและเชื่อมไปยังอีเมลของคุณแล้ว</Typography>
@@ -53,13 +59,13 @@ function ConfirmContent({ id }: { id: string }) {
           </Box>
 
           {[
-            { icon: "📅", label: "วันที่", value: `วันพุธที่ ${day} พฤษภาคม 2568` },
-            { icon: "🕐", label: "เวลา", value: `${time} - ${String(Number(time.split(":")[0]) + 1).padStart(2, "0")}:00 น.` },
-            { icon: "💻", label: "รูปแบบ", value: format === "online" ? "ออนไลน์" : "ตัวต่อตัว" },
-            { icon: "💰", label: "ราคา", value: `${expert.price.toLocaleString()}.-` },
+            { icon: <CalendarMonthRoundedIcon fontSize="inherit" />, label: "วันที่", value: `วันพุธที่ ${day} พฤษภาคม 2568` },
+            { icon: <ScheduleRoundedIcon fontSize="inherit" />, label: "เวลา", value: `${time} - ${String(Number(time.split(":")[0]) + 1).padStart(2, "0")}:00 น.` },
+            { icon: format === "online" ? <ComputerRoundedIcon fontSize="inherit" /> : <BusinessRoundedIcon fontSize="inherit" />, label: "รูปแบบ", value: format === "online" ? "ออนไลน์" : "ตัวต่อตัว" },
+            { icon: <PaymentsRoundedIcon fontSize="inherit" />, label: "ราคา", value: `${expert.price.toLocaleString()}.-` },
           ].map((item) => (
             <Box key={item.label} sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-              <Typography sx={{ fontSize: "1.1rem", width: 24 }}>{item.icon}</Typography>
+              <Box sx={{ fontSize: "1.4rem", width: 28, display: "flex", justifyContent: "center", color: PRIMARY }}>{item.icon}</Box>
               <Box>
                 <Typography variant="caption" sx={{ color: "#9CA3AF" }}>{item.label}</Typography>
                 <Typography fontWeight={600} sx={{ color: "#1F2937" }}>{item.value}</Typography>
