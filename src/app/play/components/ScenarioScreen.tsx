@@ -11,7 +11,7 @@ import type { Player } from "@/context/GameContext";
 import { CHARACTERS } from "@/context/GameContext";
 
 const BG_CARD = "#FFFFFF";
-const PRIMARY = "#4E7B5E";
+const PRIMARY = "#3B9AB8"; // Life Event Blue
 
 interface Props {
   question: Question;

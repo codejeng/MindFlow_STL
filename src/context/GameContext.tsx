@@ -139,6 +139,7 @@ interface GameContextType extends GameState {
   updateMissionProgress: (playerId: string, missionType: MissionType, delta?: number) => void;
   addHeartCoins:         (playerId: string, amount: number) => void;
   addHeartCoinsToAll:    (amount: number) => void;
+  buyMissionWithCoins:   (playerId: string, missionType: MissionType) => void;
   unlockDoor:            (playerId: string) => void;
   areAllDoorsUnlocked:   () => boolean;
   getPlayerMissions:     (playerId: string) => PlayerMission[];
@@ -373,6 +374,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const buyMissionWithCoins = useCallback((playerId: string, missionType: MissionType) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => {
+        if (p.id !== playerId) return p;
+        if (p.heartCoins < 7) return p; // Ensure they have enough coins
+        
+        // Deduct 7 coins
+        const newCoins = Math.max(0, p.heartCoins - 7);
+        
+        return {
+          ...p,
+          heartCoins: newCoins,
+          missions: p.missions.map((m) => ({
+            ...m,
+            goals: m.goals.map((g) => {
+              // Update the target mission to be fully complete
+              if (g.type === missionType) {
+                return { ...g, progress: Math.max(g.progress, g.target) };
+              }
+              // Also update the coin mission progress to match new balance
+              if (g.type === "coin") {
+                return { ...g, progress: newCoins };
+              }
+              return g;
+            }),
+          })),
+        };
+      }),
+    }));
+  }, []);
+
   const unlockDoor = useCallback((playerId: string) => {
     setState((prev) => ({
       ...prev,
@@ -423,10 +456,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setGamePhase, setTimeLimit, setGameStartTime, setSelectedDeck,
       usePassToken, nextTurn, prevTurn, getCurrentPlayer,
       recordTurnResult, finishGame, resetGame,
-      assignMissions, updateMissionProgress,
-      addHeartCoins, addHeartCoinsToAll,
-      unlockDoor, areAllDoorsUnlocked,
-      getPlayerMissions, checkAllMissionsComplete,
+      assignMissions,
+      updateMissionProgress,
+      addHeartCoins,
+      addHeartCoinsToAll,
+      buyMissionWithCoins,
+      unlockDoor,
+      areAllDoorsUnlocked,
+      getPlayerMissions,
+      checkAllMissionsComplete,
       recordChannelPlay,
       setPlayerJohariData,
     }}>

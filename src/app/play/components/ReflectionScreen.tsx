@@ -5,7 +5,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { REFLECTION_TAGS } from "@/constants/reflectionTags";
 
 const BG_CARD = "#FFFFFF";
-const PRIMARY = "#4E7B5E";
+const PRIMARY = "#3B9AB8"; // Life Event Blue
 
 interface Props {
   selectedTag: string | null;

@@ -3,11 +3,12 @@ import { Box, Typography, Button, IconButton } from "@mui/material";
 import { motion } from "framer-motion";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import { useGame } from "@/context/GameContext";
 import { MISSION_ICON_META } from "@/data/missions";
 
 const BG_CARD = "#FFFFFF";
-const PRIMARY = "#4E7B5E";
+const PRIMARY = "#D4A012"; // Mission Gate Gold
 
 interface Props {
   onBack: () => void;
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export default function MissionGateProgressScreen({ onBack, onUnlock, onNotReady }: Props) {
-  const { getCurrentPlayer, checkAllMissionsComplete } = useGame();
+  const { getCurrentPlayer, checkAllMissionsComplete, buyMissionWithCoins } = useGame();
   const currentPlayer = getCurrentPlayer();
 
   const missions = currentPlayer?.missions ?? [];
@@ -93,7 +94,7 @@ export default function MissionGateProgressScreen({ onBack, onUnlock, onNotReady
                   const goalMeta = MISSION_ICON_META[g.type];
 
                   return (
-                    <Box key={gi} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 0.3 }}>
+                    <Box key={gi} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.3 }}>
                       <Box sx={{ flex: 1, height: 8, backgroundColor: "#E5E7EB", borderRadius: 2, overflow: "hidden" }}>
                         <Box sx={{
                           width: `${pct}%`, height: "100%",
@@ -103,10 +104,31 @@ export default function MissionGateProgressScreen({ onBack, onUnlock, onNotReady
                       </Box>
                       <Typography fontWeight={800} sx={{
                         color: goalComplete ? PRIMARY : "#2C2218",
-                        fontSize: "0.85rem", minWidth: 50, textAlign: "right",
+                        fontSize: "0.85rem", minWidth: 40, textAlign: "right",
                       }}>
                         {goalComplete ? "สำเร็จ!" : `${g.progress}/${g.target}`}
                       </Typography>
+
+                      {/* Unlock Subtask Button */}
+                      {!goalComplete && (
+                        <Button 
+                          variant="contained" 
+                          size="small" 
+                          disabled={currentPlayer!.heartCoins < 7}
+                          onClick={() => buyMissionWithCoins(currentPlayer!.id, g.type)}
+                          sx={{ 
+                            whiteSpace: "nowrap", minWidth: 45, p: 0.5, borderRadius: 2, ml: 1,
+                            backgroundColor: currentPlayer!.heartCoins >= 7 ? "#FDF6EE" : "#F3F4F6",
+                            color: currentPlayer!.heartCoins >= 7 ? "#CF6B3E" : "#9CA3AF",
+                            border: `1px solid ${currentPlayer!.heartCoins >= 7 ? "#F0D6A0" : "#E5E7EB"}`,
+                            boxShadow: "none",
+                            display: "flex", gap: 0.5, alignItems: "center",
+                            "&:hover": { backgroundColor: "#FCE8D5", boxShadow: "none" }
+                          }}>
+                          <Box component="img" src="/images/heart-token.png" alt="Token" sx={{ width: 14, height: 14, opacity: currentPlayer!.heartCoins >= 7 ? 1 : 0.5, filter: currentPlayer!.heartCoins >= 7 ? 'none' : 'grayscale(100%)' }} />
+                          <Typography fontWeight={800} fontSize="0.75rem">7</Typography>
+                        </Button>
+                      )}
                     </Box>
                   );
                 })}

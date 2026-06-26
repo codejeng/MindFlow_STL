@@ -139,7 +139,7 @@ export default function TurnStartScreen({
           </Box>
 
           {/* Name + sub */}
-          <Box>
+          <Box sx={{ flex: 1 }}>
             <Typography variant="caption" sx={{ color: "#9C8B76", fontWeight: 600, letterSpacing: "0.04em" }}>
               เลือกช่องที่ตก
             </Typography>
@@ -149,6 +149,18 @@ export default function TurnStartScreen({
             <Typography fontWeight={900} sx={{ color: "#2C2218", fontSize: "1.2rem", lineHeight: 1.2 }}>
               {currentPlayer.name}
             </Typography>
+          </Box>
+
+          {/* Tokens */}
+          <Box sx={{ 
+            display: "flex", alignItems: "center", gap: 0.75, 
+            backgroundColor: "#FDF6EE", px: 1.5, py: 0.75, borderRadius: 3,
+            border: "1.5px solid #F0D6A0", flexShrink: 0
+          }}>
+            <Typography fontWeight={900} sx={{ color: "#CF6B3E", fontSize: "1.1rem" }}>
+              {currentPlayer.heartCoins}
+            </Typography>
+            <Box component="img" src="/images/heart-token.png" alt="Token" sx={{ width: 22, height: 22 }} />
           </Box>
         </Box>
 

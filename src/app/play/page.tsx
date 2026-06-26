@@ -26,10 +26,14 @@ import HeartGateWaitingScreen from "./components/HeartGateWaitingScreen";
 import HeartGateReadyScreen from "./components/HeartGateReadyScreen";
 import FinalReflectionScreen from "./components/FinalReflectionScreen";
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
+import GoodMomentActionScreen from "./components/GoodMomentActionScreen";
+import ChallengeMomentActionScreen from "./components/ChallengeMomentActionScreen";
+import TargetPlayerSelectScreen from "./components/TargetPlayerSelectScreen";
 
 type PlayState =
   | "turn" | "lobby" | "scenario" | "opinion" | "reflection" | "waiting" | "score" | "saved"
-  | "pass_the_heart_action" | "mission_update"
+  | "pass_the_heart_action" | "mission_update" | "pass_the_heart_target"
+  | "good_moment_action" | "challenge_moment_action"
   | "mission_gate_progress" | "mission_gate_unlock" | "mission_gate_not_ready"
   | "heart_gate_waiting" | "heart_gate_ready" | "final_reflection";
 
@@ -104,8 +108,14 @@ export default function PlayPage() {
     const ch = channelId;
     if (ch === "mission-gate") {
       setPlayState("mission_gate_progress");
+    } else if (ch === "good-moments") {
+      setPlayState("good_moment_action");
+    } else if (ch === "challenge-moments") {
+      setPlayState("challenge_moment_action");
+    } else if (ch === "pass-the-heart") {
+      setPlayState("pass_the_heart_target");
     } else {
-      // All channels go through lobby for card code entry
+      // life-event goes through lobby for card code entry
       setPlayState("lobby");
     }
   }, [players, currentPlayer]);
@@ -169,12 +179,18 @@ export default function PlayPage() {
 
     // Record question result if life-event
     if (selectedChannel === "life-event" && currentQuestion) {
+      const actualPlayerId = targetUpdatePlayerId || currentPlayer.id;
       recordTurnResult({
         questionCode: currentQuestion.code,
-        playerId: currentPlayer.id,
+        playerId: actualPlayerId,
         selfReflectionTag: selectedTag,
         oceScore,
       });
+
+      // If it was triggered by Pass The Heart, give the active player their mission progress
+      if (targetUpdatePlayerId) {
+        updateMissionProgress(currentPlayer.id, "pass-the-heart");
+      }
     }
 
     // Reset state and advance to mission update screen
@@ -225,25 +241,24 @@ export default function PlayPage() {
       updateMissionProgress, addHeartCoinsToAll, recordChannelPlay]);
 
   // Handle pass the heart target selection
-  const handlePassTheHeartTarget = useCallback((targetPlayerId: string) => {
+  const handlePassTheHeartTargetSelected = useCallback((targetPlayerId: string) => {
     if (!currentPlayer) return;
-
-    recordChannelPlay({
-      playerId: currentPlayer.id,
-      channel: "pass-the-heart",
-      turnIndex: currentTurnIndex,
-      questionCode: currentQuestion?.code,
-      targetPlayerId,
-    });
-
-    // Update mission for the TARGET player (they were chosen)
-    updateMissionProgress(targetPlayerId, "pass-the-heart");
-    setEarnedCoins(0);
-
+    
+    // We record the target, then pretend we are doing a Life Event
     setTargetUpdatePlayerId(targetPlayerId);
-    setPlayState("pass_the_heart_action");
-  }, [currentPlayer, currentQuestion, currentTurnIndex,
-      updateMissionProgress, recordChannelPlay]);
+    setSelectedChannel("life-event"); // Switch channel so they play Life Event
+    setPlayState("lobby");
+  }, [currentPlayer]);
+
+  // Good Moments simple finish
+  const handleGoodMomentFinish = useCallback(() => {
+    if (!currentPlayer) return;
+    recordChannelPlay({ playerId: currentPlayer.id, channel: "good-moments", turnIndex: currentTurnIndex });
+    updateMissionProgress(currentPlayer.id, "good-moments");
+    addHeartCoins(currentPlayer.id, 1);
+    setEarnedCoins(1);
+    setPlayState("mission_update");
+  }, [currentPlayer, currentTurnIndex, updateMissionProgress, addHeartCoins, recordChannelPlay]);
 
   const handleFinishPassTheHeart = useCallback(() => {
     setSelectedNumberStr("");
@@ -369,12 +384,11 @@ export default function PlayPage() {
                 }
                 onBack={() => setPlayState("lobby")}
                 onConfirm={getPostScenarioAction()}
-                // Pass channel info for different flows
                 channel={selectedChannel ?? undefined}
                 players={players}
-                currentPlayerId={currentPlayer.id}
+                currentPlayerId={targetUpdatePlayerId || currentPlayer.id}
                 onChallengeResult={handleChallengeResult}
-                onPassTheHeartTarget={handlePassTheHeartTarget}
+                onPassTheHeartTarget={() => {}} // Deprecated
                 onSimpleFinish={handleFinishTurnWithTracking}
               />
             )}
@@ -392,6 +406,31 @@ export default function PlayPage() {
                 setSelectedTag={setSelectedTag}
                 onBack={() => setPlayState("opinion")}
                 onConfirm={() => setPlayState("waiting")}
+              />
+            )}
+            {playState === "good_moment_action" && (
+              <GoodMomentActionScreen
+                key="good_moment_action"
+                currentPlayer={currentPlayer}
+                onDone={handleGoodMomentFinish}
+                onBack={() => setPlayState("turn")}
+              />
+            )}
+            {playState === "challenge_moment_action" && (
+              <ChallengeMomentActionScreen
+                key="challenge_moment_action"
+                currentPlayer={currentPlayer}
+                onResult={handleChallengeResult}
+                onBack={() => setPlayState("turn")}
+              />
+            )}
+            {playState === "pass_the_heart_target" && (
+              <TargetPlayerSelectScreen
+                key="pass_the_heart_target"
+                currentPlayer={currentPlayer}
+                players={players}
+                onSelectTarget={handlePassTheHeartTargetSelected}
+                onBack={() => setPlayState("turn")}
               />
             )}
             {playState === "pass_the_heart_action" && currentQuestion && (

@@ -6,7 +6,7 @@ import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { useGame } from "@/context/GameContext";
 
-const PRIMARY = "#4E7B5E";
+const PRIMARY = "#D4A012";
 
 interface Props {
   onBack: () => void;
