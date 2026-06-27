@@ -154,23 +154,29 @@ export default function PlayPage() {
   const handleFinishTurnWithTracking = useCallback(() => {
     if (!currentPlayer || !selectedChannel) return;
 
-    const missionType = CHANNEL_TO_MISSION[selectedChannel];
+    let effectiveChannel = selectedChannel;
 
-    // Record channel play
+    if (selectedChannel === "life-event" && targetUpdatePlayerId) {
+      effectiveChannel = "pass-the-heart"; // The active player technically played Pass the Heart
+    }
+
+    const missionType = CHANNEL_TO_MISSION[effectiveChannel];
+
+    // Record channel play for ACTIVE player
     recordChannelPlay({
       playerId: currentPlayer.id,
-      channel: selectedChannel,
+      channel: effectiveChannel,
       turnIndex: currentTurnIndex,
       questionCode: currentQuestion?.code,
     });
 
-    // Update mission progress based on channel
+    // Update mission progress for ACTIVE player based on effective channel
     if (missionType) {
       updateMissionProgress(currentPlayer.id, missionType);
     }
 
     // Channel-specific bonuses
-    if (selectedChannel === "good-moments") {
+    if (effectiveChannel === "good-moments") {
       addHeartCoins(currentPlayer.id, 1); // +1 Heart Coin for sharing
       setEarnedCoins(1);
     } else {
@@ -187,9 +193,9 @@ export default function PlayPage() {
         oceScore,
       });
 
-      // If it was triggered by Pass The Heart, give the active player their mission progress
+      // If it was triggered by Pass The Heart, TARGET player gets "life-event" mission progress!
       if (targetUpdatePlayerId) {
-        updateMissionProgress(currentPlayer.id, "pass-the-heart");
+        updateMissionProgress(targetUpdatePlayerId, "life-event");
       }
     }
 

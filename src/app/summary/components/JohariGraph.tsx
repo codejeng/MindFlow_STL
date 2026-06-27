@@ -22,27 +22,27 @@ export default function JohariGraph({ x, y, dimensionName }: Props) {
         width: "100%",
         aspectRatio: "1/1",
         backgroundColor: "#F9F5F0",
-        border: "2px solid rgba(180,155,120,0.3)",
-        borderRadius: 2,
+        borderRadius: 3,
         overflow: "hidden",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
       }}>
         {/* Quadrants */}
-        <Box sx={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", borderRight: "1px dashed rgba(180,155,120,0.5)", borderBottom: "1px dashed rgba(180,155,120,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Typography variant="caption" sx={{ color: "#9C8B76", fontWeight: 600, opacity: 0.6 }}>Unknown</Typography>
+        <Box sx={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", backgroundColor: "#BDCEB4", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRight: "3px solid #FFF", borderBottom: "3px solid #FFF", p: 1, textAlign: "center" }}>
+          <Typography variant="caption" sx={{ color: "#3B4A3F", fontWeight: 700, lineHeight: 1.3 }}>สิ่งที่คุณและ<br/>คนอื่นรู้</Typography>
+          <Typography variant="caption" sx={{ color: "#3B4A3F", fontWeight: 700, fontSize: "0.65rem", mt: 0.5 }}>(Open Area)</Typography>
         </Box>
-        <Box sx={{ position: "absolute", top: 0, right: 0, width: "50%", height: "50%", borderBottom: "1px dashed rgba(180,155,120,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Typography variant="caption" sx={{ color: "#9C8B76", fontWeight: 600, opacity: 0.6 }}>Blind Spot</Typography>
+        <Box sx={{ position: "absolute", top: 0, right: 0, width: "50%", height: "50%", backgroundColor: "#F4D3BC", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderBottom: "3px solid #FFF", p: 1, textAlign: "center" }}>
+          <Typography variant="caption" sx={{ color: "#6A4A3A", fontWeight: 700, lineHeight: 1.3 }}>สิ่งที่คุณไม่รู้<br/>แต่คนอื่นรู้</Typography>
+          <Typography variant="caption" sx={{ color: "#6A4A3A", fontWeight: 700, fontSize: "0.65rem", mt: 0.5 }}>(Blind Spot)</Typography>
         </Box>
-        <Box sx={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", borderRight: "1px dashed rgba(180,155,120,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Typography variant="caption" sx={{ color: "#9C8B76", fontWeight: 600, opacity: 0.6 }}>Hidden Area</Typography>
+        <Box sx={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", backgroundColor: "#FCE5BC", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRight: "3px solid #FFF", p: 1, textAlign: "center" }}>
+          <Typography variant="caption" sx={{ color: "#6A5A3A", fontWeight: 700, lineHeight: 1.3 }}>สิ่งที่คุณรู้<br/>แต่คนอื่นไม่รู้</Typography>
+          <Typography variant="caption" sx={{ color: "#6A5A3A", fontWeight: 700, fontSize: "0.65rem", mt: 0.5 }}>(Hidden Area)</Typography>
         </Box>
-        <Box sx={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: "50%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: `${PRIMARY}10` }}>
-          <Typography variant="caption" sx={{ color: PRIMARY, fontWeight: 700, opacity: 0.8 }}>Open Area</Typography>
+        <Box sx={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: "50%", backgroundColor: "#E4B59D", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 1, textAlign: "center" }}>
+          <Typography variant="caption" sx={{ color: "#5A3A2A", fontWeight: 700, lineHeight: 1.3 }}>สิ่งที่ไม่มีใครรู้</Typography>
+          <Typography variant="caption" sx={{ color: "#5A3A2A", fontWeight: 700, fontSize: "0.65rem", mt: 0.5 }}>(Unknown Area)</Typography>
         </Box>
-
-        {/* X and Y Axis Labels */}
-        <Typography variant="caption" sx={{ position: "absolute", bottom: 2, right: 8, color: "#9C8B76", fontSize: "0.6rem" }}>Known to Others →</Typography>
-        <Typography variant="caption" sx={{ position: "absolute", top: 8, left: 2, color: "#9C8B76", fontSize: "0.6rem", transform: "rotate(-90deg)", transformOrigin: "0 0" }}>Known to Self →</Typography>
 
         {/* Data Point */}
         <motion.div
@@ -51,14 +51,15 @@ export default function JohariGraph({ x, y, dimensionName }: Props) {
           transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
           style={{
             position: "absolute",
-            left: `${x}%`,
-            bottom: `${y}%`,
-            width: 16,
-            height: 16,
-            backgroundColor: PRIMARY,
+            left: `${100 - y}%`, // y is Self-Assessment. High y = small left (Left Column)
+            top: `${100 - x}%`,  // x is Peer-Feedback. High x = small top (Top Row)
+            width: 18,
+            height: 18,
+            backgroundColor: "#2C2218",
             borderRadius: "50%",
-            transform: "translate(-50%, 50%)",
-            boxShadow: `0 0 0 4px ${PRIMARY}30`,
+            transform: "translate(-50%, -50%)",
+            boxShadow: `0 0 0 4px rgba(44, 34, 24, 0.2)`,
+            zIndex: 10,
           }}
         />
       </Box>
